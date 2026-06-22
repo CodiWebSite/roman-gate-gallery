@@ -1,29 +1,76 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Header } from "@/components/site/Header";
+import { Hero } from "@/components/site/Hero";
+import { About } from "@/components/site/About";
+import { Services } from "@/components/site/Services";
+import { Portfolio } from "@/components/site/Portfolio";
+import { Videos } from "@/components/site/Videos";
+import { Process } from "@/components/site/Process";
+import { Testimonials } from "@/components/site/Testimonials";
+import { Contact } from "@/components/site/Contact";
+import { Footer } from "@/components/site/Footer";
+import { WhatsAppFloat } from "@/components/site/WhatsAppFloat";
+
+const title = "PortiDinLemn | Porți din lemn și stejar în România";
+const description =
+  "Porți mândre românești din lemn masiv și stejar. Portofoliu, servicii de execuție, montaj și recondiționare porți din lemn.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "PortiDinLemn",
+  description,
+  image: "/images/hero.jpg",
+  slogan: "Porți mândre românești",
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "RO",
+  },
+  makesOffer: [
+    "Porți din lemn masiv",
+    "Porți din stejar",
+    "Porți rustice tradiționale",
+    "Porți moderne din lemn",
+    "Recondiționare porți",
+    "Montaj și consultanță",
+  ].map((s) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: s } })),
+};
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+      { property: "og:type", content: "website" },
+      { property: "og:image", content: "/images/hero.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/images/hero.jpg" },
+    ],
+    scripts: [
+      { type: "application/ld+json", children: JSON.stringify(jsonLd) },
     ],
   }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen">
+      <Header />
+      <main>
+        <Hero />
+        <About />
+        <Services />
+        <Portfolio />
+        <Videos />
+        <Process />
+        <Testimonials />
+        <Contact />
+      </main>
+      <Footer />
+      <WhatsAppFloat />
     </div>
   );
 }
