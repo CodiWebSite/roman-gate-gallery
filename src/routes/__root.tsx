@@ -81,6 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Lovable App" },
       { name: "description", content: "Wooden Gate Showcase is a premium, one-page, responsive website for PortiDinLemn, showcasing custom wooden gates and services." },
       { name: "author", content: "Lovable" },
+      { name: "google-site-verification", content: "F9Z8zZh1ZtQBZ6xFp59yskAoSw7uEH7J0Y5xkxy0kBw" },
       { property: "og:title", content: "Lovable App" },
       { property: "og:description", content: "Wooden Gate Showcase is a premium, one-page, responsive website for PortiDinLemn, showcasing custom wooden gates and services." },
       { property: "og:type", content: "website" },
