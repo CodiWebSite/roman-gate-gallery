@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermeniRouteImport } from './routes/termeni'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ConfidentialitateRouteImport } from './routes/confidentialitate'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -19,6 +20,11 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 const TermeniRoute = TermeniRouteImport.update({
   id: '/termeni',
   path: '/termeni',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfidentialitateRoute = ConfidentialitateRouteImport.update({
@@ -50,6 +56,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/confidentialitate': typeof ConfidentialitateRoute
+  '/cookies': typeof CookiesRoute
   '/termeni': typeof TermeniRoute
   '/admin': typeof AuthenticatedAdminRoute
 }
@@ -57,6 +64,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/confidentialitate': typeof ConfidentialitateRoute
+  '/cookies': typeof CookiesRoute
   '/termeni': typeof TermeniRoute
   '/admin': typeof AuthenticatedAdminRoute
 }
@@ -66,20 +74,28 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/confidentialitate': typeof ConfidentialitateRoute
+  '/cookies': typeof CookiesRoute
   '/termeni': typeof TermeniRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/confidentialitate' | '/termeni' | '/admin'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/confidentialitate'
+    | '/cookies'
+    | '/termeni'
+    | '/admin'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/confidentialitate' | '/termeni' | '/admin'
+  to: '/' | '/auth' | '/confidentialitate' | '/cookies' | '/termeni' | '/admin'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/confidentialitate'
+    | '/cookies'
     | '/termeni'
     | '/_authenticated/admin'
   fileRoutesById: FileRoutesById
@@ -89,6 +105,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ConfidentialitateRoute: typeof ConfidentialitateRoute
+  CookiesRoute: typeof CookiesRoute
   TermeniRoute: typeof TermeniRoute
 }
 
@@ -99,6 +116,13 @@ declare module '@tanstack/react-router' {
       path: '/termeni'
       fullPath: '/termeni'
       preLoaderRoute: typeof TermeniRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/confidentialitate': {
@@ -155,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ConfidentialitateRoute: ConfidentialitateRoute,
+  CookiesRoute: CookiesRoute,
   TermeniRoute: TermeniRoute,
 }
 export const routeTree = rootRouteImport
