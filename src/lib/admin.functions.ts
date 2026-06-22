@@ -18,13 +18,16 @@ export const claimAdmin = createServerFn({ method: "POST" })
     if (countError) throw countError;
 
     if ((count ?? 0) === 0) {
-      const { error } = await supabaseAdmin
+      // upsert (ignore duplicates) so concurrent calls don't throw on the unique constraint
+      await supabaseAdmin
         .from("user_roles")
-        .insert({ user_id: context.userId, role: "admin" });
-      if (error) throw error;
-      return { isAdmin: true };
+        .upsert(
+          { user_id: context.userId, role: "admin" },
+          { onConflict: "user_id,role", ignoreDuplicates: true },
+        );
     }
 
+    // Always return the real current state for this user.
     const { data, error } = await supabaseAdmin
       .from("user_roles")
       .select("id")
