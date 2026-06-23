@@ -121,12 +121,6 @@ export function Videos() {
               <DialogDescription className="sr-only">
                 {active.description || `Video: ${active.title}`}
               </DialogDescription>
-              <DialogClose
-                className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow-card transition-colors hover:bg-background"
-                aria-label="Închide"
-              >
-                <X className="h-5 w-5" />
-              </DialogClose>
               <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-black">
                 <video
                   controls
