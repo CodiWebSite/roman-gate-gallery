@@ -20,7 +20,7 @@ export function About() {
               Porți din lemn cu suflet și tradiție românească
             </h2>
             <p className="mt-5 text-muted-foreground">
-              La PortiDinLemn îmbinăm meșteșugul tradițional cu execuția precisă.
+              La Porți Din Lemn îmbinăm meșteșugul tradițional cu execuția precisă.
               Lucrăm lemn masiv și stejar pentru porți care rezistă generații
               întregi, păstrând estetica autentică a curților românești.
             </p>

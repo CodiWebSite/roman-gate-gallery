@@ -12,7 +12,7 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-3">
           <div>
             <div className="font-display text-xl font-bold">
-              Porti<span className="text-primary">DinLemn</span>
+              Porți <span className="text-primary">Din Lemn</span>
             </div>
             <p className="mt-2 flex items-center gap-2 text-sm text-background/70">
               Porți mândre românești <RomanianFlag />
@@ -66,7 +66,7 @@ export function Footer() {
             consultant juridic înainte de publicare.
           </p>
           <p className="mt-3">
-            © {year} {s?.company_name || "PortiDinLemn SRL"}. Toate drepturile rezervate. ·{" "}
+            © {year} {s?.company_name || "Porți Din Lemn SRL"}. Toate drepturile rezervate. ·{" "}
             <Link to="/admin" className="hover:text-primary">Admin</Link>
           </p>
         </div>

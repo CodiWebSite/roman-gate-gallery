@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
 const NAV = [
@@ -12,15 +12,7 @@ const NAV = [
 ];
 
 export function Header() {
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   const go = (id: string) => {
     setOpen(false);
@@ -28,21 +20,13 @@ export function Header() {
   };
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
-        scrolled
-          ? "bg-background/90 shadow-soft backdrop-blur-md"
-          : "bg-transparent"
-      }`}
-    >
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-border/30 bg-background/85 shadow-soft backdrop-blur-md transition-all duration-300">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
         <button
           onClick={() => go("acasa")}
-          className={`font-display text-xl font-bold tracking-tight sm:text-2xl ${
-            scrolled ? "text-foreground" : "text-primary-foreground"
-          }`}
+          className="font-display text-xl font-bold tracking-tight text-foreground sm:text-2xl"
         >
-          Porti<span className="text-primary">DinLemn</span>
+          Porți <span className="text-primary">Din Lemn</span>
         </button>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -50,9 +34,7 @@ export function Header() {
             <button
               key={item.id}
               onClick={() => go(item.id)}
-              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary ${
-                scrolled ? "text-foreground" : "text-primary-foreground/90"
-              }`}
+              className="rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/50 hover:text-primary"
             >
               {item.label}
             </button>
@@ -60,7 +42,7 @@ export function Header() {
         </nav>
 
         <button
-          className={`lg:hidden ${scrolled ? "text-foreground" : "text-primary-foreground"}`}
+          className="text-foreground lg:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Meniu"
         >

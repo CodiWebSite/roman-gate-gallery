@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 
 export const Route = createFileRoute("/confidentialitate")({
-  head: () => ({ meta: [{ title: "Politică de confidențialitate · PortiDinLemn" }] }),
+  head: () => ({ meta: [{ title: "Politică de confidențialitate · Porți Din Lemn" }] }),
   component: () => (
     <LegalPage title="Politică de confidențialitate">
       <p>
