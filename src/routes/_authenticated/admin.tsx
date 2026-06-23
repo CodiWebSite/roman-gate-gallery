@@ -97,7 +97,7 @@ function AdminPage() {
       <header className="sticky top-0 z-10 border-b border-border bg-background/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link to="/" className="font-display text-xl font-bold">
-            Porti<span className="text-primary">DinLemn</span>
+            Porți <span className="text-primary">Din Lemn</span>
             <span className="ml-2 text-sm font-normal text-muted-foreground">Admin</span>
           </Link>
           <div className="flex items-center gap-2">

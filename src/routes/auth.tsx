@@ -55,7 +55,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-cream px-4">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-card">
         <Link to="/" className="font-display text-2xl font-bold">
-          Porti<span className="text-primary">DinLemn</span>
+          Porți <span className="text-primary">Din Lemn</span>
         </Link>
         <h1 className="mt-6 text-2xl font-bold">
           {mode === "login" ? "Autentificare admin" : "Creează cont admin"}

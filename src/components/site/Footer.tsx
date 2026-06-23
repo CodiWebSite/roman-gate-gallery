@@ -12,7 +12,7 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-3">
           <div>
             <div className="font-display text-xl font-bold">
-              Porti<span className="text-primary">DinLemn</span>
+              Porți <span className="text-primary">Din Lemn</span>
             </div>
             <p className="mt-2 flex items-center gap-2 text-sm text-background/70">
               Porți mândre românești <RomanianFlag />
