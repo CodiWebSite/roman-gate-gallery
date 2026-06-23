@@ -1,4 +1,5 @@
 import { useSettings, whatsappLink } from "@/lib/site";
+import { smoothScrollToElement } from "@/lib/smooth-scroll";
 import { RomanianFlag } from "@/components/RomanianFlag";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { ArrowRight } from "lucide-react";
