@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Autentificare · PortiDinLemn" }] }),
+  head: () => ({ meta: [{ title: "Autentificare · Porți Din Lemn" }] }),
   component: AuthPage,
 });
 

@@ -11,14 +11,14 @@ import { Contact } from "@/components/site/Contact";
 import { Footer } from "@/components/site/Footer";
 import { WhatsAppFloat } from "@/components/site/WhatsAppFloat";
 
-const title = "PortiDinLemn | Porți din lemn și stejar în România";
+const title = "Porți Din Lemn | Porți din lemn și stejar în România";
 const description =
   "Porți mândre românești din lemn masiv și stejar. Portofoliu, servicii de execuție, montaj și recondiționare porți din lemn.";
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
-  name: "PortiDinLemn",
+  name: "Porți Din Lemn",
   description,
   image: "/images/hero.jpg",
   slogan: "Porți mândre românești",

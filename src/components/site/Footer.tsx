@@ -66,7 +66,7 @@ export function Footer() {
             consultant juridic înainte de publicare.
           </p>
           <p className="mt-3">
-            © {year} {s?.company_name || "PortiDinLemn SRL"}. Toate drepturile rezervate. ·{" "}
+            © {year} {s?.company_name || "Porți Din Lemn SRL"}. Toate drepturile rezervate. ·{" "}
             <Link to="/admin" className="hover:text-primary">Admin</Link>
           </p>
         </div>
