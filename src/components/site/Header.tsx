@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { smoothScrollToElement } from "@/lib/smooth-scroll";
 
 const NAV = [
   { id: "acasa", label: "Acasă" },
@@ -16,7 +17,7 @@ export function Header() {
 
   const go = (id: string) => {
     setOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    smoothScrollToElement(document.getElementById(id));
   };
 
   return (

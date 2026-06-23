@@ -1,4 +1,5 @@
 import { useSettings, whatsappLink } from "@/lib/site";
+import { smoothScrollToElement } from "@/lib/smooth-scroll";
 import { RomanianFlag } from "@/components/RomanianFlag";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { ArrowRight } from "lucide-react";
@@ -46,7 +47,7 @@ export function Hero() {
             Cere ofertă pe WhatsApp
           </a>
           <button
-            onClick={() => document.getElementById("portofoliu")?.scrollIntoView({ behavior: "smooth" })}
+            onClick={() => smoothScrollToElement(document.getElementById("portofoliu"))}
             className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary-foreground/40 bg-background/10 px-7 py-3.5 text-base font-semibold text-primary-foreground backdrop-blur-sm transition-colors hover:bg-background/20 sm:w-auto"
           >
             Vezi portofoliul <ArrowRight className="h-4 w-4" />
