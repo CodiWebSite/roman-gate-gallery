@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Play, X } from "lucide-react";
+import { Play } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { usePublishedVideos } from "@/lib/site";
 import {
   Dialog,
   DialogContent,
-  DialogClose,
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
