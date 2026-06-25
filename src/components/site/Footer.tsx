@@ -85,14 +85,20 @@ export function Footer() {
         </div>
 
         <div className="mt-10 border-t border-background/15 pt-6 text-xs text-background/55">
-          <p>
-            Conținutul juridic este orientativ și trebuie validat cu un
-            consultant juridic înainte de publicare.
-          </p>
-          <p className="mt-3">
-            © {year} {s?.company_name || "Porți Din Lemn SRL"}. Toate drepturile rezervate. ·{" "}
-            <Link to="/admin" className="hover:text-primary">Admin</Link>
-          </p>
+          <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+            <p>
+              © {year} {s?.company_name || "Porți Din Lemn SRL"}. Toate drepturile rezervate. ·{" "}
+              <Link to="/admin" className="hover:text-primary">Admin</Link>
+            </p>
+            <a
+              href="https://webcraft.djfunkyevents.ro/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary"
+            >
+              Site dezvoltat de Webcraft Romania
+            </a>
+          </div>
         </div>
       </div>
     </footer>
