@@ -1,26 +1,33 @@
 import { useState } from "react";
 import { Reveal } from "@/components/Reveal";
-import { usePublishedProjects, usePublishedSketches, type ProjectSketch } from "@/lib/site";
-import { MapPin, Ruler, X, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  usePublishedProjects,
+  usePublishedSketches,
+  usePublishedPhotos,
+} from "@/lib/site";
+import { MapPin, Ruler, Images, X, ChevronLeft, ChevronRight } from "lucide-react";
+
+type GalleryImage = { id: string; image_url: string; alt_text: string | null };
 
 export function Portfolio() {
   const { data: projects, isLoading } = usePublishedProjects();
   const { data: sketchMap } = usePublishedSketches();
+  const { data: photoMap } = usePublishedPhotos();
 
-  const [openSketches, setOpenSketches] = useState<ProjectSketch[] | null>(null);
+  const [images, setImages] = useState<GalleryImage[] | null>(null);
   const [openTitle, setOpenTitle] = useState("");
+  const [openKind, setOpenKind] = useState<"photo" | "sketch">("photo");
   const [index, setIndex] = useState(0);
 
-  const openGallery = (sketches: ProjectSketch[], title: string) => {
-    setOpenSketches(sketches);
+  const openGallery = (imgs: GalleryImage[], title: string, kind: "photo" | "sketch") => {
+    setImages(imgs);
     setOpenTitle(title);
+    setOpenKind(kind);
     setIndex(0);
   };
-  const close = () => setOpenSketches(null);
-  const prev = () =>
-    setIndex((i) => (openSketches ? (i - 1 + openSketches.length) % openSketches.length : 0));
-  const next = () =>
-    setIndex((i) => (openSketches ? (i + 1) % openSketches.length : 0));
+  const close = () => setImages(null);
+  const prev = () => setIndex((i) => (images ? (i - 1 + images.length) % images.length : 0));
+  const next = () => setIndex((i) => (images ? (i + 1) % images.length : 0));
 
   return (
     <section id="portofoliu" className="bg-cream py-20 sm:py-28">
@@ -42,10 +49,20 @@ export function Portfolio() {
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {(projects ?? []).map((p, i) => {
               const sketches = sketchMap?.[p.id] ?? [];
+              const extraPhotos = photoMap?.[p.id] ?? [];
+              const allPhotos: GalleryImage[] = [
+                { id: `cover-${p.id}`, image_url: p.image_url, alt_text: p.alt_text },
+                ...extraPhotos,
+              ];
               return (
                 <Reveal key={p.id} delay={(i % 3) * 80}>
                   <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all hover:-translate-y-1 hover:shadow-card">
-                    <div className="aspect-[4/3] overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => openGallery(allPhotos, p.title, "photo")}
+                      className="relative aspect-[4/3] overflow-hidden"
+                      aria-label={`Vezi pozele pentru ${p.title}`}
+                    >
                       <img
                         src={p.image_url}
                         alt={p.alt_text || p.title}
@@ -54,7 +71,12 @@ export function Portfolio() {
                         height={768}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                    </div>
+                      {extraPhotos.length > 0 && (
+                        <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">
+                          <Images className="h-3.5 w-3.5" /> {allPhotos.length}
+                        </span>
+                      )}
+                    </button>
                     <div className="flex flex-1 flex-col p-5">
                       <div className="mb-2 flex items-center justify-end gap-2">
                         {p.location && (
@@ -67,16 +89,28 @@ export function Portfolio() {
                       {p.description && (
                         <p className="mt-1 text-sm text-muted-foreground">{p.description}</p>
                       )}
-                      {sketches.length > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => openGallery(sketches, p.title)}
-                          className="mt-4 inline-flex items-center gap-2 self-start rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                        >
-                          <Ruler className="h-4 w-4" />
-                          Vezi schița{sketches.length > 1 ? `e (${sketches.length})` : ""}
-                        </button>
-                      )}
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {extraPhotos.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => openGallery(allPhotos, p.title, "photo")}
+                            className="inline-flex items-center gap-2 self-start rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                          >
+                            <Images className="h-4 w-4" />
+                            Vezi pozele ({allPhotos.length})
+                          </button>
+                        )}
+                        {sketches.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => openGallery(sketches, p.title, "sketch")}
+                            className="inline-flex items-center gap-2 self-start rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                          >
+                            <Ruler className="h-4 w-4" />
+                            Vezi schița{sketches.length > 1 ? `e (${sketches.length})` : ""}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </article>
                 </Reveal>
@@ -86,13 +120,13 @@ export function Portfolio() {
         )}
       </div>
 
-      {openSketches && openSketches.length > 0 && (
+      {images && images.length > 0 && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
           onClick={close}
           role="dialog"
           aria-modal="true"
-          aria-label={`Schițe ${openTitle}`}
+          aria-label={`Galerie ${openTitle}`}
         >
           <button
             type="button"
@@ -108,20 +142,23 @@ export function Portfolio() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 text-center text-white">
-              <p className="text-base font-semibold">{openTitle} — schiță cu dimensiuni</p>
-              {openSketches.length > 1 && (
+              <p className="text-base font-semibold">
+                {openTitle}
+                {openKind === "sketch" ? " — schiță cu dimensiuni" : ""}
+              </p>
+              {images.length > 1 && (
                 <p className="text-sm text-white/70">
-                  {index + 1} / {openSketches.length}
+                  {index + 1} / {images.length}
                 </p>
               )}
             </div>
 
             <div className="relative flex w-full items-center justify-center">
-              {openSketches.length > 1 && (
+              {images.length > 1 && (
                 <button
                   type="button"
                   onClick={prev}
-                  aria-label="Schița anterioară"
+                  aria-label="Imaginea anterioară"
                   className="absolute left-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
                 >
                   <ChevronLeft className="h-6 w-6" />
@@ -129,16 +166,18 @@ export function Portfolio() {
               )}
 
               <img
-                src={openSketches[index].image_url}
-                alt={openSketches[index].alt_text || `Schiță ${openTitle}`}
-                className="max-h-[78vh] w-auto max-w-full rounded-lg bg-white object-contain"
+                src={images[index].image_url}
+                alt={images[index].alt_text || openTitle}
+                className={`max-h-[78vh] w-auto max-w-full rounded-lg object-contain ${
+                  openKind === "sketch" ? "bg-white" : ""
+                }`}
               />
 
-              {openSketches.length > 1 && (
+              {images.length > 1 && (
                 <button
                   type="button"
                   onClick={next}
-                  aria-label="Schița următoare"
+                  aria-label="Imaginea următoare"
                   className="absolute right-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
                 >
                   <ChevronRight className="h-6 w-6" />
@@ -146,14 +185,14 @@ export function Portfolio() {
               )}
             </div>
 
-            {openSketches.length > 1 && (
+            {images.length > 1 && (
               <div className="mt-4 flex flex-wrap justify-center gap-2">
-                {openSketches.map((s, i) => (
+                {images.map((s, i) => (
                   <button
                     key={s.id}
                     type="button"
                     onClick={() => setIndex(i)}
-                    aria-label={`Schița ${i + 1}`}
+                    aria-label={`Imaginea ${i + 1}`}
                     className={`h-14 w-14 overflow-hidden rounded-md border-2 transition-colors ${
                       i === index ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
                     }`}
