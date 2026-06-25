@@ -4,6 +4,7 @@ import { Hero } from "@/components/site/Hero";
 import { About } from "@/components/site/About";
 import { Services } from "@/components/site/Services";
 import { Portfolio } from "@/components/site/Portfolio";
+import { RealWorks } from "@/components/site/RealWorks";
 import { Videos } from "@/components/site/Videos";
 import { Process } from "@/components/site/Process";
 import { Testimonials } from "@/components/site/Testimonials";
