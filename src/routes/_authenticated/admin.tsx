@@ -23,8 +23,8 @@ const TABS = [
 ] as const;
 
 const SIGNED_EXPIRY = 60 * 60 * 24 * 365 * 10; // 10 years
-const MAX_IMAGE = 8 * 1024 * 1024;
-const MAX_VIDEO = 100 * 1024 * 1024;
+const MAX_IMAGE = 200 * 1024 * 1024;
+const MAX_VIDEO = 200 * 1024 * 1024;
 
 async function uploadFile(file: File, kind: "image" | "video") {
   const allowed =
