@@ -210,7 +210,7 @@ function ProjectsManager({ kind }: { kind: "schema" | "real" }) {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold">Lucrări portofoliu</h2>
+        <h2 className="text-xl font-bold">{kind === "real" ? "Lucrări reale (poze reale)" : "Modele 3D (scheme pe calculator)"}</h2>
         <button
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
