@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { claimAdmin } from "@/lib/admin.functions";
 import { CATEGORIES, type Project, type VideoItem, type Testimonial, type ProjectSketch, type ProjectPhoto } from "@/lib/site";
 import {
-  LogOut, Plus, Trash2, ArrowUp, ArrowDown, Loader2, ImageIcon, Video, Star, Settings as SettingsIcon, ExternalLink, Ruler,
+  LogOut, Plus, Trash2, ArrowUp, ArrowDown, Loader2, ImageIcon, Video, Star, Settings as SettingsIcon, ExternalLink, Ruler, Hammer,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
