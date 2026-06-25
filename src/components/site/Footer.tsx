@@ -1,6 +1,8 @@
 import { useSettings } from "@/lib/site";
 import { RomanianFlag } from "@/components/RomanianFlag";
 import { Link } from "@tanstack/react-router";
+import anpcSal from "@/assets/anpc-sal.svg.asset.json";
+import anpcSol from "@/assets/anpc-sol.svg.asset.json";
 
 export function Footer() {
   const { data: s } = useSettings();
