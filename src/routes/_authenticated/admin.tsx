@@ -247,6 +247,9 @@ function ProjectsManager() {
                   <Toggle label="Publicat" checked={p.published} onChange={(v) => update(p.id, { published: v })} />
                   <Toggle label="Featured" checked={p.featured} onChange={(v) => update(p.id, { featured: v })} />
                 </div>
+                <div className="sm:col-span-2">
+                  <SketchesManager projectId={p.id} />
+                </div>
               </div>
               <div className="flex flex-row gap-2 sm:flex-col">
                 <IconBtn onClick={() => move(idx, -1)}><ArrowUp className="h-4 w-4" /></IconBtn>
