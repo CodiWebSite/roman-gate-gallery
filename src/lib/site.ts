@@ -27,6 +27,14 @@ export interface Project {
   sort_order: number;
 }
 
+export interface ProjectSketch {
+  id: string;
+  project_id: string;
+  image_url: string;
+  alt_text: string | null;
+  sort_order: number;
+}
+
 export interface VideoItem {
   id: string;
   title: string;
