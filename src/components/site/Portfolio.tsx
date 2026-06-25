@@ -117,12 +117,18 @@ export function Portfolio() {
       <div className="mx-auto max-w-6xl px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-            Portofoliu
+            Idei de porți
           </p>
           <h2 className="text-balance text-3xl font-bold sm:text-4xl">
-            Lucrări realizate de noi
+            Modele și concepte 3D
           </h2>
+          <p className="mt-4 text-muted-foreground">
+            Acestea sunt modele și schițe realizate pe calculator în 3D, pentru a-ți
+            oferi idei și a vizualiza cum ar putea arăta poarta ta înainte de execuție.
+            Fiecare model poate fi personalizat după dimensiunile și preferințele tale.
+          </p>
         </Reveal>
+
 
         {isLoading ? (
           <p className="mt-12 text-center text-muted-foreground">Se încarcă...</p>
