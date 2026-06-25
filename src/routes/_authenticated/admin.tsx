@@ -156,7 +156,7 @@ function ProjectsManager({ kind }: { kind: "schema" | "real" }) {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const refresh = () => {
-    qc.invalidateQueries({ queryKey: ["admin", "projects"] });
+    qc.invalidateQueries({ queryKey: ["admin", "projects", kind] });
     qc.invalidateQueries({ queryKey: ["projects", "published"] });
   };
 
