@@ -16,11 +16,13 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 const TABS = [
-  { id: "projects", label: "Portofoliu", icon: ImageIcon },
+  { id: "projects", label: "Modele 3D", icon: ImageIcon },
+  { id: "real", label: "Lucrări reale", icon: Hammer },
   { id: "videos", label: "Video", icon: Video },
   { id: "testimonials", label: "Testimoniale", icon: Star },
   { id: "settings", label: "Setări", icon: SettingsIcon },
 ] as const;
+
 
 const SIGNED_EXPIRY = 60 * 60 * 24 * 365 * 10; // 10 years
 const MAX_IMAGE = 200 * 1024 * 1024;
