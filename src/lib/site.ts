@@ -94,6 +94,24 @@ export function usePublishedProjects() {
   });
 }
 
+export function usePublishedSketches() {
+  return useQuery({
+    queryKey: ["project_sketches", "all"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_sketches")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      const map: Record<string, ProjectSketch[]> = {};
+      (data ?? []).forEach((s) => {
+        (map[s.project_id] ??= []).push(s as ProjectSketch);
+      });
+      return map;
+    },
+  });
+}
+
 export function usePublishedVideos() {
   return useQuery({
     queryKey: ["videos", "published"],
