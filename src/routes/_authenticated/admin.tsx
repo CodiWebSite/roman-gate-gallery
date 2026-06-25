@@ -248,6 +248,9 @@ function ProjectsManager() {
                   <Toggle label="Featured" checked={p.featured} onChange={(v) => update(p.id, { featured: v })} />
                 </div>
                 <div className="sm:col-span-2">
+                  <PhotosManager projectId={p.id} />
+                </div>
+                <div className="sm:col-span-2">
                   <SketchesManager projectId={p.id} />
                 </div>
               </div>
