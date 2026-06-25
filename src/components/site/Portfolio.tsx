@@ -10,9 +10,10 @@ import { MapPin, Ruler, Images, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } 
 type GalleryImage = { id: string; image_url: string; alt_text: string | null };
 
 export function Portfolio() {
-  const { data: projects, isLoading } = usePublishedProjects();
+  const { data: allProjects, isLoading } = usePublishedProjects();
   const { data: sketchMap } = usePublishedSketches();
   const { data: photoMap } = usePublishedPhotos();
+  const projects = (allProjects ?? []).filter((p) => p.kind !== "real");
 
   const [images, setImages] = useState<GalleryImage[] | null>(null);
   const [openTitle, setOpenTitle] = useState("");
