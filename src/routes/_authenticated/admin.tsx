@@ -5,9 +5,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { claimAdmin } from "@/lib/admin.functions";
-import { CATEGORIES, type Project, type VideoItem, type Testimonial } from "@/lib/site";
+import { CATEGORIES, type Project, type VideoItem, type Testimonial, type ProjectSketch } from "@/lib/site";
 import {
-  LogOut, Plus, Trash2, ArrowUp, ArrowDown, Loader2, ImageIcon, Video, Star, Settings as SettingsIcon, ExternalLink,
+  LogOut, Plus, Trash2, ArrowUp, ArrowDown, Loader2, ImageIcon, Video, Star, Settings as SettingsIcon, ExternalLink, Ruler,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
