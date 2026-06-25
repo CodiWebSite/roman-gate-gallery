@@ -27,6 +27,14 @@ export interface Project {
   sort_order: number;
 }
 
+export interface ProjectSketch {
+  id: string;
+  project_id: string;
+  image_url: string;
+  alt_text: string | null;
+  sort_order: number;
+}
+
 export interface VideoItem {
   id: string;
   title: string;
@@ -82,6 +90,24 @@ export function usePublishedProjects() {
         .order("sort_order", { ascending: true });
       if (error) throw error;
       return (data ?? []) as Project[];
+    },
+  });
+}
+
+export function usePublishedSketches() {
+  return useQuery({
+    queryKey: ["project_sketches", "all"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_sketches")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      const map: Record<string, ProjectSketch[]> = {};
+      (data ?? []).forEach((s) => {
+        (map[s.project_id] ??= []).push(s as ProjectSketch);
+      });
+      return map;
     },
   });
 }
