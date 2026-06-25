@@ -139,12 +139,16 @@ function AdminPage() {
 }
 
 /* ---------- Projects ---------- */
-function ProjectsManager() {
+function ProjectsManager({ kind }: { kind: "schema" | "real" }) {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
-    queryKey: ["admin", "projects"],
+    queryKey: ["admin", "projects", kind],
     queryFn: async () => {
-      const { data, error } = await supabase.from("projects").select("*").order("sort_order");
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("kind", kind)
+        .order("sort_order");
       if (error) throw error;
       return data as Project[];
     },
