@@ -49,16 +49,38 @@ export function Footer() {
               <li><Link to="/cookies" className="hover:text-primary">Politică cookies</Link></li>
             </ul>
 
-            <a
-              href="https://reclamatiisal.anpc.ro"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 flex h-[50px] w-[250px] items-center justify-center gap-2 rounded-md border border-background/20 bg-background/10 text-xs font-semibold text-background"
-              aria-label="Soluționarea Alternativă a Litigiilor - ANPC"
-            >
-              <span className="rounded bg-primary px-1.5 py-0.5 text-primary-foreground">SAL</span>
-              Soluționarea Alternativă a Litigiilor · ANPC
-            </a>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <a
+                href="https://anpc.ro/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="ANPC - Soluționarea Alternativă a Litigiilor"
+              >
+                <img
+                  src={anpcSal.url}
+                  alt="ANPC - Soluționarea Alternativă a Litigiilor"
+                  width={175}
+                  height={50}
+                  loading="lazy"
+                  className="h-[50px] w-auto rounded bg-background"
+                />
+              </a>
+              <a
+                href="https://consumer-redress.ec.europa.eu/site-relocation_en"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Soluționarea Online a Litigiilor - Comisia Europeană"
+              >
+                <img
+                  src={anpcSol.url}
+                  alt="Soluționarea Online a Litigiilor - Comisia Europeană"
+                  width={175}
+                  height={50}
+                  loading="lazy"
+                  className="h-[50px] w-auto rounded bg-background"
+                />
+              </a>
+            </div>
           </div>
         </div>
 
