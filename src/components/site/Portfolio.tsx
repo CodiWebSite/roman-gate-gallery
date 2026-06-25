@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Reveal } from "@/components/Reveal";
 import {
   usePublishedProjects,
   usePublishedSketches,
   usePublishedPhotos,
 } from "@/lib/site";
-import { MapPin, Ruler, Images, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Ruler, Images, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
 
 type GalleryImage = { id: string; image_url: string; alt_text: string | null };
 
@@ -19,15 +19,97 @@ export function Portfolio() {
   const [openKind, setOpenKind] = useState<"photo" | "sketch">("photo");
   const [index, setIndex] = useState(0);
 
+  const [scale, setScale] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const lastPos = useRef({ x: 0, y: 0 });
+  const dragStart = useRef({ x: 0, y: 0 });
+  const imgWrapRef = useRef<HTMLDivElement>(null);
+
   const openGallery = (imgs: GalleryImage[], title: string, kind: "photo" | "sketch") => {
     setImages(imgs);
     setOpenTitle(title);
     setOpenKind(kind);
     setIndex(0);
+    setScale(1);
+    setPan({ x: 0, y: 0 });
   };
-  const close = () => setImages(null);
-  const prev = () => setIndex((i) => (images ? (i - 1 + images.length) % images.length : 0));
-  const next = () => setIndex((i) => (images ? (i + 1) % images.length : 0));
+  const close = () => {
+    setImages(null);
+    setScale(1);
+    setPan({ x: 0, y: 0 });
+  };
+  const prev = () => {
+    setIndex((i) => (images ? (i - 1 + images.length) % images.length : 0));
+    setScale(1);
+    setPan({ x: 0, y: 0 });
+  };
+  const next = () => {
+    setIndex((i) => (images ? (i + 1) % images.length : 0));
+    setScale(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const toggleZoom = () => {
+    if (scale === 1) {
+      setScale(2.5);
+      setPan({ x: 0, y: 0 });
+    } else {
+      setScale(1);
+      setPan({ x: 0, y: 0 });
+    }
+  };
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (scale === 1) return;
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+    setDragging(true);
+    lastPos.current = { x: e.clientX, y: e.clientY };
+    dragStart.current = { x: e.clientX, y: e.clientY };
+  }, [scale]);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!dragging || scale === 1) return;
+    const dx = e.clientX - lastPos.current.x;
+    const dy = e.clientY - lastPos.current.y;
+    lastPos.current = { x: e.clientX, y: e.clientY };
+    setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+  }, [dragging, scale]);
+
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    if (!dragging) return;
+    const moved =
+      Math.abs(e.clientX - dragStart.current.x) > 4 ||
+      Math.abs(e.clientY - dragStart.current.y) > 4;
+    setDragging(false);
+    if (!moved) {
+      toggleZoom();
+    }
+  }, [dragging]);
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      setScale((s) => Math.min(s + 0.4, 4));
+    } else {
+      setScale((s) => {
+        const ns = Math.max(s - 0.4, 1);
+        if (ns === 1) setPan({ x: 0, y: 0 });
+        return ns;
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!images) return;
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+      if (e.key === "Escape") close();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [images]);
 
   return (
     <section id="portofoliu" className="bg-cream py-20 sm:py-28">
@@ -122,7 +204,7 @@ export function Portfolio() {
 
       {images && images.length > 0 && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
           onClick={close}
           role="dialog"
           aria-modal="true"
@@ -132,13 +214,13 @@ export function Portfolio() {
             type="button"
             onClick={close}
             aria-label="Închide"
-            className="absolute right-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+            className="absolute right-4 top-4 z-20 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-foreground shadow-lg transition-colors hover:bg-white"
           >
-            <X className="h-5 w-5" />
+            <X className="h-6 w-6" />
           </button>
 
           <div
-            className="relative flex max-h-full w-full max-w-4xl flex-col items-center"
+            className="relative flex max-h-full w-full max-w-5xl flex-col items-center"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 text-center text-white">
@@ -157,30 +239,62 @@ export function Portfolio() {
               {images.length > 1 && (
                 <button
                   type="button"
-                  onClick={prev}
+                  onClick={(e) => { e.stopPropagation(); prev(); }}
                   aria-label="Imaginea anterioară"
-                  className="absolute left-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+                  className="absolute left-3 z-10 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-foreground shadow-lg transition-transform hover:scale-110 hover:bg-white"
                 >
-                  <ChevronLeft className="h-6 w-6" />
+                  <ChevronLeft className="h-7 w-7" />
                 </button>
               )}
 
-              <img
-                src={images[index].image_url}
-                alt={images[index].alt_text || openTitle}
-                className={`max-h-[78vh] w-auto max-w-full rounded-lg object-contain ${
-                  openKind === "sketch" ? "bg-white" : ""
-                }`}
-              />
+              <div
+                ref={imgWrapRef}
+                className="relative overflow-hidden rounded-lg"
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onWheel={handleWheel}
+                style={{ cursor: scale === 1 ? "zoom-in" : dragging ? "grabbing" : "grab" }}
+              >
+                <img
+                  src={images[index].image_url}
+                  alt={images[index].alt_text || openTitle}
+                  onClick={(e) => { e.stopPropagation(); if (scale === 1) toggleZoom(); }}
+                  className={`max-h-[72vh] w-auto max-w-full select-none object-contain transition-transform duration-200 ${
+                    openKind === "sketch" ? "bg-white" : ""
+                  }`}
+                  style={{
+                    transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
+                    transformOrigin: "center center",
+                  }}
+                  draggable={false}
+                />
+
+                {scale > 1 && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setScale(1); setPan({ x: 0, y: 0 }); }}
+                    aria-label="Resetează zoom"
+                    className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-sm font-semibold text-foreground shadow-lg transition-colors hover:bg-white"
+                  >
+                    <ZoomOut className="h-4 w-4" /> Reset zoom
+                  </button>
+                )}
+                {scale === 1 && (
+                  <div className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1 text-xs text-white">
+                    <ZoomIn className="h-3.5 w-3.5" /> Click pentru zoom
+                  </div>
+                )}
+              </div>
 
               {images.length > 1 && (
                 <button
                   type="button"
-                  onClick={next}
+                  onClick={(e) => { e.stopPropagation(); next(); }}
                   aria-label="Imaginea următoare"
-                  className="absolute right-2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+                  className="absolute right-3 z-10 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-foreground shadow-lg transition-transform hover:scale-110 hover:bg-white"
                 >
-                  <ChevronRight className="h-6 w-6" />
+                  <ChevronRight className="h-7 w-7" />
                 </button>
               )}
             </div>
