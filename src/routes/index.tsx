@@ -65,6 +65,7 @@ function Index() {
         <About />
         <Services />
         <Portfolio />
+        <RealWorks />
         <Videos />
         <Process />
         <Testimonials />
