@@ -128,7 +128,8 @@ function AdminPage() {
           ))}
         </nav>
 
-        {tab === "projects" && <ProjectsManager />}
+        {tab === "projects" && <ProjectsManager kind="schema" />}
+        {tab === "real" && <ProjectsManager kind="real" />}
         {tab === "videos" && <VideosManager />}
         {tab === "testimonials" && <TestimonialsManager />}
         {tab === "settings" && <SettingsManager />}
