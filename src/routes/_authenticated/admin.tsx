@@ -171,6 +171,7 @@ function ProjectsManager({ kind }: { kind: "schema" | "real" }) {
         category: "rustice",
         alt_text: "Poartă din lemn",
         sort_order: max + 1,
+        kind,
       });
       if (error) throw error;
       toast.success("Imagine adăugată. Editează detaliile.");
