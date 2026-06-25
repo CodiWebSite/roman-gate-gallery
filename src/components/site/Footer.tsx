@@ -84,7 +84,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-background/15 pt-6 text-xs text-background/55">
+        <div className="mt-10 border-t border-background/15 pt-6 text-sm text-background/80">
           <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
             <p>
               © {year} {s?.company_name || "Porți Din Lemn SRL"}. Toate drepturile rezervate. ·{" "}
