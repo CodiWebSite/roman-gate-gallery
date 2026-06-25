@@ -35,7 +35,7 @@ async function uploadFile(file: File, kind: "image" | "video") {
     throw new Error("Tip de fișier neacceptat.");
   }
   if (file.size > (kind === "image" ? MAX_IMAGE : MAX_VIDEO)) {
-    throw new Error(`Fișier prea mare (max ${kind === "image" ? "8MB" : "100MB"}).`);
+    throw new Error(`Fișier prea mare (max 200MB).`);
   }
   const ext = file.name.split(".").pop() || (kind === "image" ? "jpg" : "mp4");
   const path = `${kind}s/${crypto.randomUUID()}.${ext}`;
