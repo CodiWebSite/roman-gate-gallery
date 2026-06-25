@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { claimAdmin } from "@/lib/admin.functions";
 import { CATEGORIES, type Project, type VideoItem, type Testimonial, type ProjectSketch, type ProjectPhoto } from "@/lib/site";
 import {
-  LogOut, Plus, Trash2, ArrowUp, ArrowDown, Loader2, ImageIcon, Video, Star, Settings as SettingsIcon, ExternalLink, Ruler,
+  LogOut, Plus, Trash2, ArrowUp, ArrowDown, Loader2, ImageIcon, Video, Star, Settings as SettingsIcon, ExternalLink, Ruler, Hammer,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -16,11 +16,13 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 const TABS = [
-  { id: "projects", label: "Portofoliu", icon: ImageIcon },
+  { id: "projects", label: "Modele 3D", icon: ImageIcon },
+  { id: "real", label: "Lucrări reale", icon: Hammer },
   { id: "videos", label: "Video", icon: Video },
   { id: "testimonials", label: "Testimoniale", icon: Star },
   { id: "settings", label: "Setări", icon: SettingsIcon },
 ] as const;
+
 
 const SIGNED_EXPIRY = 60 * 60 * 24 * 365 * 10; // 10 years
 const MAX_IMAGE = 200 * 1024 * 1024;
@@ -126,7 +128,8 @@ function AdminPage() {
           ))}
         </nav>
 
-        {tab === "projects" && <ProjectsManager />}
+        {tab === "projects" && <ProjectsManager kind="schema" />}
+        {tab === "real" && <ProjectsManager kind="real" />}
         {tab === "videos" && <VideosManager />}
         {tab === "testimonials" && <TestimonialsManager />}
         {tab === "settings" && <SettingsManager />}
@@ -136,12 +139,16 @@ function AdminPage() {
 }
 
 /* ---------- Projects ---------- */
-function ProjectsManager() {
+function ProjectsManager({ kind }: { kind: "schema" | "real" }) {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
-    queryKey: ["admin", "projects"],
+    queryKey: ["admin", "projects", kind],
     queryFn: async () => {
-      const { data, error } = await supabase.from("projects").select("*").order("sort_order");
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("kind", kind)
+        .order("sort_order");
       if (error) throw error;
       return data as Project[];
     },
@@ -149,7 +156,7 @@ function ProjectsManager() {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const refresh = () => {
-    qc.invalidateQueries({ queryKey: ["admin", "projects"] });
+    qc.invalidateQueries({ queryKey: ["admin", "projects", kind] });
     qc.invalidateQueries({ queryKey: ["projects", "published"] });
   };
 
@@ -164,6 +171,7 @@ function ProjectsManager() {
         category: "rustice",
         alt_text: "Poartă din lemn",
         sort_order: max + 1,
+        kind,
       });
       if (error) throw error;
       toast.success("Imagine adăugată. Editează detaliile.");
@@ -202,7 +210,7 @@ function ProjectsManager() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold">Lucrări portofoliu</h2>
+        <h2 className="text-xl font-bold">{kind === "real" ? "Lucrări reale (poze reale)" : "Modele 3D (scheme pe calculator)"}</h2>
         <button
           onClick={() => fileRef.current?.click()}
           disabled={uploading}

@@ -25,6 +25,7 @@ export interface Project {
   featured: boolean;
   published: boolean;
   sort_order: number;
+  kind: string;
 }
 
 export interface ProjectSketch {

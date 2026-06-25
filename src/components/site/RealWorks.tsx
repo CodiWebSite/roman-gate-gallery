@@ -1,23 +1,17 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Reveal } from "@/components/Reveal";
-import {
-  usePublishedProjects,
-  usePublishedSketches,
-  usePublishedPhotos,
-} from "@/lib/site";
-import { MapPin, Ruler, Images, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
+import { usePublishedProjects, usePublishedPhotos } from "@/lib/site";
+import { MapPin, Images, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 type GalleryImage = { id: string; image_url: string; alt_text: string | null };
 
-export function Portfolio() {
+export function RealWorks() {
   const { data: allProjects, isLoading } = usePublishedProjects();
-  const { data: sketchMap } = usePublishedSketches();
   const { data: photoMap } = usePublishedPhotos();
-  const projects = (allProjects ?? []).filter((p) => p.kind !== "real");
+  const projects = (allProjects ?? []).filter((p) => p.kind === "real");
 
   const [images, setImages] = useState<GalleryImage[] | null>(null);
   const [openTitle, setOpenTitle] = useState("");
-  const [openKind, setOpenKind] = useState<"photo" | "sketch">("photo");
   const [index, setIndex] = useState(0);
 
   const [scale, setScale] = useState(1);
@@ -25,12 +19,10 @@ export function Portfolio() {
   const [dragging, setDragging] = useState(false);
   const lastPos = useRef({ x: 0, y: 0 });
   const dragStart = useRef({ x: 0, y: 0 });
-  const imgWrapRef = useRef<HTMLDivElement>(null);
 
-  const openGallery = (imgs: GalleryImage[], title: string, kind: "photo" | "sketch") => {
+  const openGallery = (imgs: GalleryImage[], title: string) => {
     setImages(imgs);
     setOpenTitle(title);
-    setOpenKind(kind);
     setIndex(0);
     setScale(1);
     setPan({ x: 0, y: 0 });
@@ -52,13 +44,8 @@ export function Portfolio() {
   };
 
   const toggleZoom = () => {
-    if (scale === 1) {
-      setScale(2.5);
-      setPan({ x: 0, y: 0 });
-    } else {
-      setScale(1);
-      setPan({ x: 0, y: 0 });
-    }
+    setScale((s) => (s === 1 ? 2.5 : 1));
+    setPan({ x: 0, y: 0 });
   };
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
@@ -74,7 +61,7 @@ export function Portfolio() {
     const dx = e.clientX - lastPos.current.x;
     const dy = e.clientY - lastPos.current.y;
     lastPos.current = { x: e.clientX, y: e.clientY };
-    setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+    setPan((p) => ({ x: p.x + dx, y: p.y + dy }));
   }, [dragging, scale]);
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
@@ -83,22 +70,18 @@ export function Portfolio() {
       Math.abs(e.clientX - dragStart.current.x) > 4 ||
       Math.abs(e.clientY - dragStart.current.y) > 4;
     setDragging(false);
-    if (!moved) {
-      toggleZoom();
-    }
+    if (!moved) toggleZoom();
   }, [dragging]);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
-    if (e.deltaY < 0) {
-      setScale((s) => Math.min(s + 0.4, 4));
-    } else {
+    if (e.deltaY < 0) setScale((s) => Math.min(s + 0.4, 4));
+    else
       setScale((s) => {
         const ns = Math.max(s - 0.4, 1);
         if (ns === 1) setPan({ x: 0, y: 0 });
         return ns;
       });
-    }
   }, []);
 
   useEffect(() => {
@@ -112,32 +95,29 @@ export function Portfolio() {
     return () => window.removeEventListener("keydown", onKey);
   }, [images]);
 
+  if (!isLoading && projects.length === 0) return null;
+
   return (
-    <section id="portofoliu" className="bg-cream py-20 sm:py-28">
+    <section id="lucrari-reale" className="py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-            Idei de porți
+            Portofoliu
           </p>
           <h2 className="text-balance text-3xl font-bold sm:text-4xl">
-            Modele și concepte 3D
+            Lucrări realizate de noi
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Acestea sunt modele și schițe realizate pe calculator în 3D, pentru a-ți
-            oferi idei și a vizualiza cum ar putea arăta poarta ta înainte de execuție.
-            Fiecare model poate fi personalizat după dimensiunile și preferințele tale.
+            Poze reale ale porților montate la clienții noștri — lucrări finalizate,
+            din lemn masiv, exact așa cum arată la fața locului.
           </p>
         </Reveal>
 
-
         {isLoading ? (
           <p className="mt-12 text-center text-muted-foreground">Se încarcă...</p>
-        ) : (projects ?? []).length === 0 ? (
-          <p className="mt-12 text-center text-muted-foreground">Nicio lucrare momentan.</p>
         ) : (
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {(projects ?? []).map((p, i) => {
-              const sketches = sketchMap?.[p.id] ?? [];
+            {projects.map((p, i) => {
               const extraPhotos = photoMap?.[p.id] ?? [];
               const allPhotos: GalleryImage[] = [
                 { id: `cover-${p.id}`, image_url: p.image_url, alt_text: p.alt_text },
@@ -148,7 +128,7 @@ export function Portfolio() {
                   <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition-all hover:-translate-y-1 hover:shadow-card">
                     <button
                       type="button"
-                      onClick={() => openGallery(allPhotos, p.title, "photo")}
+                      onClick={() => openGallery(allPhotos, p.title)}
                       className="relative aspect-[4/3] overflow-hidden"
                       aria-label={`Vezi pozele pentru ${p.title}`}
                     >
@@ -178,28 +158,16 @@ export function Portfolio() {
                       {p.description && (
                         <p className="mt-1 text-sm text-muted-foreground">{p.description}</p>
                       )}
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {extraPhotos.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => openGallery(allPhotos, p.title, "photo")}
-                            className="inline-flex items-center gap-2 self-start rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                          >
-                            <Images className="h-4 w-4" />
-                            Vezi pozele ({allPhotos.length})
-                          </button>
-                        )}
-                        {sketches.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => openGallery(sketches, p.title, "sketch")}
-                            className="inline-flex items-center gap-2 self-start rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                          >
-                            <Ruler className="h-4 w-4" />
-                            Vezi schița{sketches.length > 1 ? `e (${sketches.length})` : ""}
-                          </button>
-                        )}
-                      </div>
+                      {extraPhotos.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => openGallery(allPhotos, p.title)}
+                          className="mt-4 inline-flex items-center gap-2 self-start rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                        >
+                          <Images className="h-4 w-4" />
+                          Vezi pozele ({allPhotos.length})
+                        </button>
+                      )}
                     </div>
                   </article>
                 </Reveal>
@@ -231,10 +199,7 @@ export function Portfolio() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 text-center text-white">
-              <p className="text-base font-semibold">
-                {openTitle}
-                {openKind === "sketch" ? " — schiță cu dimensiuni" : ""}
-              </p>
+              <p className="text-base font-semibold">{openTitle}</p>
               {images.length > 1 && (
                 <p className="text-sm text-white/70">
                   {index + 1} / {images.length}
@@ -255,43 +220,22 @@ export function Portfolio() {
               )}
 
               <div
-                ref={imgWrapRef}
-                className="relative overflow-hidden rounded-lg"
+                className="relative flex max-h-[70vh] w-full items-center justify-center overflow-hidden rounded-xl"
+                onWheel={handleWheel}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
-                onWheel={handleWheel}
-                style={{ cursor: scale === 1 ? "zoom-in" : dragging ? "grabbing" : "grab" }}
+                style={{ cursor: scale > 1 ? (dragging ? "grabbing" : "grab") : "zoom-in" }}
               >
                 <img
                   src={images[index].image_url}
                   alt={images[index].alt_text || openTitle}
-                  onClick={(e) => { e.stopPropagation(); if (scale === 1) toggleZoom(); }}
-                  className={`max-h-[72vh] w-auto max-w-full select-none object-contain transition-transform duration-200 ${
-                    openKind === "sketch" ? "bg-white" : ""
-                  }`}
+                  className="max-h-[70vh] w-auto select-none object-contain transition-transform"
                   style={{
                     transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
-                    transformOrigin: "center center",
                   }}
                   draggable={false}
                 />
-
-                {scale > 1 && (
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); setScale(1); setPan({ x: 0, y: 0 }); }}
-                    aria-label="Resetează zoom"
-                    className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-sm font-semibold text-foreground shadow-lg transition-colors hover:bg-white"
-                  >
-                    <ZoomOut className="h-4 w-4" /> Reset zoom
-                  </button>
-                )}
-                {scale === 1 && (
-                  <div className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1 text-xs text-white">
-                    <ZoomIn className="h-3.5 w-3.5" /> Click pentru zoom
-                  </div>
-                )}
               </div>
 
               {images.length > 1 && (
@@ -305,24 +249,6 @@ export function Portfolio() {
                 </button>
               )}
             </div>
-
-            {images.length > 1 && (
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
-                {images.map((s, i) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setIndex(i)}
-                    aria-label={`Imaginea ${i + 1}`}
-                    className={`h-14 w-14 overflow-hidden rounded-md border-2 transition-colors ${
-                      i === index ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
-                    }`}
-                  >
-                    <img src={s.image_url} alt="" className="h-full w-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       )}
