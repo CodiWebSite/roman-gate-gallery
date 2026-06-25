@@ -367,8 +367,109 @@ function SketchesManager({ projectId }: { projectId: string }) {
   );
 }
 
+/* ---------- Photos (per project) ---------- */
+function PhotosManager({ projectId }: { projectId: string }) {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin", "photos", projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_photos")
+        .select("*")
+        .eq("project_id", projectId)
+        .order("sort_order");
+      if (error) throw error;
+      return data as ProjectPhoto[];
+    },
+  });
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["admin", "photos", projectId] });
+    qc.invalidateQueries({ queryKey: ["project_photos", "all"] });
+  };
+
+  const addPhotos = async (files: FileList) => {
+    setUploading(true);
+    try {
+      let max = Math.max(0, ...(data ?? []).map((s) => s.sort_order));
+      const rows: { project_id: string; image_url: string; alt_text: string; sort_order: number }[] = [];
+      for (const file of Array.from(files)) {
+        const url = await uploadFile(file, "image");
+        max += 1;
+        rows.push({ project_id: projectId, image_url: url, alt_text: "Poartă din lemn", sort_order: max });
+      }
+      const { error } = await supabase.from("project_photos").insert(rows);
+      if (error) throw error;
+      toast.success(`${rows.length} poz${rows.length === 1 ? "ă adăugată" : "e adăugate"}.`);
+      refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Eroare la încărcare.");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("Ștergi această poză?")) return;
+    const { error } = await supabase.from("project_photos").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    refresh();
+  };
+
+  return (
+    <div className="rounded-xl border border-dashed border-border bg-secondary/30 p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <Lbl>
+          <span className="inline-flex items-center gap-1">
+            <ImageIcon className="h-3.5 w-3.5" /> Poze lucrare (galerie)
+          </span>
+        </Lbl>
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold hover:bg-muted disabled:opacity-60"
+        >
+          {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+          Adaugă poze
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          className="hidden"
+          onChange={(e) => e.target.files?.length && addPhotos(e.target.files)}
+        />
+      </div>
+      {isLoading ? (
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+      ) : (data ?? []).length === 0 ? (
+        <p className="text-xs text-muted-foreground">Nicio poză suplimentară. Poți încărca mai multe odată.</p>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {(data ?? []).map((s) => (
+            <div key={s.id} className="group relative h-20 w-20 overflow-hidden rounded-lg border border-border bg-white">
+              <img src={s.image_url} alt={s.alt_text || "Poză"} className="h-full w-full object-cover" />
+              <button
+                onClick={() => remove(s.id)}
+                aria-label="Șterge poza"
+                className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 /* ---------- Videos ---------- */
+
 function VideosManager() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
