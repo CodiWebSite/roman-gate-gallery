@@ -120,6 +120,26 @@ export function usePublishedSketches() {
   });
 }
 
+export function usePublishedPhotos() {
+  return useQuery({
+    queryKey: ["project_photos", "all"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("project_photos")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      const map: Record<string, ProjectPhoto[]> = {};
+      (data ?? []).forEach((p) => {
+        (map[p.project_id] ??= []).push(p as ProjectPhoto);
+      });
+      return map;
+    },
+  });
+}
+
+
+
 export function usePublishedVideos() {
   return useQuery({
     queryKey: ["videos", "published"],
