@@ -29,12 +29,51 @@ export function Spin360({ frames, videoUrl, title }: Props) {
   const indexRef = useRef(0);
   const draggingRef = useRef(false);
   const lastXRef = useRef(0);
+  const lastYRef = useRef(0);
   const movedRef = useRef(false);
+
+  // zoom / pan
+  const scaleRef = useRef(1);
+  const offsetRef = useRef({ x: 0, y: 0 });
+  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchStartDistRef = useRef(0);
+  const pinchStartScaleRef = useRef(1);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
 
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [hintVisible, setHintVisible] = useState(true);
+
+  const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+
+  const applyTransform = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const s = scaleRef.current;
+    let { x, y } = offsetRef.current;
+    // limitează panoramarea la marginile imaginii
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    const maxX = (w * (s - 1)) / 2;
+    const maxY = (h * (s - 1)) / 2;
+    x = clamp(x, -maxX, maxX);
+    y = clamp(y, -maxY, maxY);
+    offsetRef.current = { x, y };
+    canvas.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+  }, []);
+
+  const setZoom = useCallback(
+    (next: number) => {
+      const s = clamp(next, MIN_SCALE, MAX_SCALE);
+      scaleRef.current = s;
+      if (s === 1) offsetRef.current = { x: 0, y: 0 };
+      setScale(s);
+      applyTransform();
+    },
+    [applyTransform],
+  );
 
   const draw = useCallback((i: number) => {
     const canvas = canvasRef.current;
