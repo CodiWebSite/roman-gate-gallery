@@ -150,7 +150,8 @@ async function getFfmpeg() {
     ffmpegPromise = (async () => {
       try {
         const { FFmpeg } = await import("@ffmpeg/ffmpeg");
-        const coreURL = "/ffmpeg/ffmpeg-core.js";
+        const { toBlobURL } = await import("@ffmpeg/util");
+        const coreURL = await toBlobURL(new URL("/ffmpeg/ffmpeg-core.js", window.location.origin).toString(), "text/javascript");
         const wasmURL = "/__l5e/assets-v1/6b0f392e-64d3-4072-b7b1-20b91c4a5079/ffmpeg-core-0.12.9.wasm";
         const ffmpeg = new FFmpeg();
         ffmpeg.on("log", ({ message }) => console.debug("[ffmpeg]", message));
