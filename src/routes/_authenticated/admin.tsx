@@ -1010,3 +1010,118 @@ function IconBtn({ children, onClick, danger }: { children: React.ReactNode; onC
     </button>
   );
 }
+
+/* ---------- Admins ---------- */
+function AdminsManager() {
+  const list = useServerFn(listAdmins);
+  const create = useServerFn(createAdmin);
+  const remove = useServerFn(removeAdmin);
+  const qc = useQueryClient();
+
+  const { data: admins, isLoading } = useQuery({
+    queryKey: ["admins"],
+    queryFn: () => list({}),
+  });
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await create({ data: { email, password } });
+      toast.success("Administrator adăugat.");
+      setEmail("");
+      setPassword("");
+      qc.invalidateQueries({ queryKey: ["admins"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Eroare la creare.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const del = async (id: string, mail: string) => {
+    if (!confirm(`Ștergi administratorul ${mail}? Contul va fi eliminat definitiv.`)) return;
+    try {
+      await remove({ data: { userId: id } });
+      toast.success("Administrator șters.");
+      qc.invalidateQueries({ queryKey: ["admins"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Eroare la ștergere.");
+    }
+  };
+
+  return (
+    <div className="max-w-2xl space-y-8">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+        <h2 className="text-lg font-bold">Adaugă administrator</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Creează un cont nou de administrator cu email și parolă. Contul poate accesa acest panou imediat.
+        </p>
+        <form onSubmit={submit} className="mt-4 space-y-4">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">Email</label>
+            <input
+              type="email"
+              required
+              autoComplete="off"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">Parolă</label>
+            <input
+              type="password"
+              required
+              autoComplete="new-password"
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Minim 8 caractere"
+              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={saving}
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-warm px-6 py-2.5 font-semibold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] disabled:opacity-60"
+          >
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            Adaugă administrator
+          </button>
+        </form>
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+        <h2 className="text-lg font-bold">Administratori existenți</h2>
+        {isLoading ? (
+          <div className="mt-4 flex justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        ) : (
+          <ul className="mt-4 divide-y divide-border">
+            {(admins ?? []).map((a) => (
+              <li key={a.id} className="flex items-center justify-between gap-3 py-3">
+                <span className="text-sm">{a.email}</span>
+                <button
+                  onClick={() => del(a.id, a.email)}
+                  className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-sm font-medium text-destructive hover:bg-muted"
+                >
+                  <Trash2 className="h-4 w-4" /> Șterge
+                </button>
+              </li>
+            ))}
+            {(admins ?? []).length === 0 && (
+              <li className="py-3 text-sm text-muted-foreground">Niciun administrator găsit.</li>
+            )}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
