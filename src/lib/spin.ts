@@ -6,6 +6,15 @@
  */
 
 export type ExtractProgress = (done: number, total: number) => void;
+export type ExtractMode = "native" | "ffmpeg";
+export type ExtractPhase = (mode: ExtractMode, stage: string) => void;
+
+export type ExtractResult = {
+  frames: Blob[];
+  /** Primul cadru — folosit ca thumbnail de previzualizare. */
+  thumbnail: Blob;
+  mode: ExtractMode;
+};
 
 /**
  * Punct de intrare: încearcă întâi decodarea nativă (rapidă), iar dacă browserul
@@ -17,17 +26,26 @@ export async function extractSpinFrames(
   targetWidth = 1000,
   quality = 0.82,
   onProgress?: ExtractProgress,
-): Promise<Blob[]> {
+  onPhase?: ExtractPhase,
+): Promise<ExtractResult> {
+  let frames: Blob[];
+  let mode: ExtractMode = "native";
   try {
-    return await extractSpinFramesNative(file, frameCount, targetWidth, quality, onProgress);
+    onPhase?.("native", "Se decodează videoul în browser…");
+    frames = await extractSpinFramesNative(file, frameCount, targetWidth, quality, onProgress);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     // Codec neacceptat sau decodare eșuată → folosim ffmpeg.wasm (suportă orice format).
     if (msg === "UNSUPPORTED_CODEC" || msg === "Durată video invalidă." || msg === "Nu s-a putut citi videoul.") {
-      return await extractSpinFramesFfmpeg(file, frameCount, targetWidth, quality, onProgress);
+      mode = "ffmpeg";
+      onPhase?.("ffmpeg", "Codec neacceptat de browser — se pornește convertorul ffmpeg…");
+      frames = await extractSpinFramesFfmpeg(file, frameCount, targetWidth, quality, onProgress, onPhase);
+    } else {
+      throw err;
     }
-    throw err;
   }
+  if (frames.length === 0) throw new Error("Nu s-au putut extrage cadre din video.");
+  return { frames, thumbnail: frames[0], mode };
 }
 
 async function extractSpinFramesNative(
