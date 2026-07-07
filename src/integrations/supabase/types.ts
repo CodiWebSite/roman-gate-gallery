@@ -100,6 +100,7 @@ export type Database = {
           location: string | null
           published: boolean
           sort_order: number
+          spin_frames: Json | null
           spin_video_url: string | null
           title: string
           updated_at: string
@@ -116,6 +117,7 @@ export type Database = {
           location?: string | null
           published?: boolean
           sort_order?: number
+          spin_frames?: Json | null
           spin_video_url?: string | null
           title: string
           updated_at?: string
@@ -132,6 +134,7 @@ export type Database = {
           location?: string | null
           published?: boolean
           sort_order?: number
+          spin_frames?: Json | null
           spin_video_url?: string | null
           title?: string
           updated_at?: string
