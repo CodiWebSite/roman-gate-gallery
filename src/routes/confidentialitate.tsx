@@ -2,7 +2,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 
 export const Route = createFileRoute("/confidentialitate")({
-  head: () => ({ meta: [{ title: "Politică de confidențialitate · Porți Din Lemn" }] }),
+  head: () => ({
+    meta: [
+      { title: "Politică de confidențialitate · Porți Din Lemn" },
+      { name: "description", content: "Politica de confidențialitate Porți Din Lemn: ce date personale colectăm prin formularul de contact, scopul prelucrării și drepturile tale conform GDPR." },
+      { property: "og:title", content: "Politică de confidențialitate · Porți Din Lemn" },
+      { property: "og:description", content: "Cum prelucrăm datele personale conform GDPR și care sunt drepturile tale." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://portidinlemn.ro/confidentialitate" },
+    ],
+    links: [{ rel: "canonical", href: "https://portidinlemn.ro/confidentialitate" }],
+  }),
   component: () => (
     <LegalPage title="Politică de confidențialitate">
       <p>
