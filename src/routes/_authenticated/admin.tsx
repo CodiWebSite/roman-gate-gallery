@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { claimAdmin } from "@/lib/admin.functions";
 import { CATEGORIES, type Project, type VideoItem, type Testimonial, type ProjectSketch, type ProjectPhoto } from "@/lib/site";
+import { extractSpinFrames } from "@/lib/spin";
 import {
   LogOut, Plus, Trash2, ArrowUp, ArrowDown, Loader2, ImageIcon, Video, Star, Settings as SettingsIcon, ExternalLink, Ruler, Hammer, Check, X as XIcon, RotateCw,
 } from "lucide-react";
