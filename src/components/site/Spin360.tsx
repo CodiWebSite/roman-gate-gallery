@@ -387,6 +387,14 @@ export function Spin360({ frames, videoUrl, title }: Props) {
           <div className="absolute right-3 top-3 flex flex-col gap-2">
             <button
               type="button"
+              onClick={toggleFullscreen}
+              aria-label={isFullscreen ? "Ieși din ecran complet" : "Ecran complet"}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white backdrop-blur-sm transition hover:bg-black/90"
+            >
+              {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+            </button>
+            <button
+              type="button"
               onClick={() => setZoom(scaleRef.current + 0.5)}
               disabled={scale >= MAX_SCALE}
               aria-label="Mărește"
