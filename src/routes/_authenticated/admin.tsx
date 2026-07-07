@@ -362,6 +362,7 @@ function SpinManager({
           : "Rotire 360° adăugată. Clienții pot roti poarta pe site.",
       );
     } catch (e) {
+      console.error("[spin360] procesare eșuată:", e);
       const msg = e instanceof Error ? e.message : "Eroare la procesare.";
       if (msg.includes("cadre") || msg === "UNSUPPORTED_CODEC") {
         toast.error(
@@ -369,7 +370,7 @@ function SpinManager({
           { duration: 8000 },
         );
       } else {
-        toast.error(msg);
+        toast.error(msg, { duration: 7000 });
       }
     } finally {
       setBusy(false);
