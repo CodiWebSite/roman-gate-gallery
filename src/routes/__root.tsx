@@ -82,7 +82,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Porți din lemn masiv și stejar lucrate manual: porți mari, masive, tradiționale și cu acoperiș. Vezi modele de porți și cere ofertă. Execuție și montaj în România." },
       { name: "keywords", content: "porți din lemn, porți din stejar, porți masive, porți mari, porți tradiționale, porți cu acoperiș, modele de porți, porți din lemn masiv, poartă din lemn rustic" },
       { name: "author", content: "Porți Din Lemn" },
-      { name: "google-site-verification", content: "F9Z8zZh1ZtQBZ6xFp59yskAoSw7uEH7J0Y5xkxy0kBw" },
+      { name: "google-site-verification", content: "swQCPT_G1ije4RR0SeyPEbVXb1i0yv8NNXgYN_8gSb0" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Porți Din Lemn" },
       { property: "og:locale", content: "ro_RO" },
