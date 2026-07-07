@@ -47,11 +47,16 @@ export function Header() {
     return () => observer.disconnect();
   }, []);
 
-  // Lock body scroll when mobile drawer open
+  // Lock body scroll + close on Escape when mobile drawer open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    if (open) window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
     };
   }, [open]);
 
@@ -149,15 +154,19 @@ export function Header() {
         {/* Backdrop */}
         <div
           onClick={() => setOpen(false)}
-          className={`absolute inset-0 bg-foreground/40 backdrop-blur-sm transition-opacity duration-300 ${
+          className={`absolute inset-0 bg-foreground/50 backdrop-blur-sm transition-opacity duration-300 ease-out ${
             open ? "opacity-100" : "opacity-0"
           }`}
         />
         {/* Panel */}
         <nav
-          className={`absolute right-0 top-0 flex h-[100dvh] w-[82%] max-w-sm flex-col bg-background shadow-elevated transition-transform duration-300 ${
+          className={`absolute right-0 top-0 flex h-[100dvh] w-[86%] max-w-[360px] flex-col bg-background shadow-elevated transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             open ? "translate-x-0" : "translate-x-full"
           }`}
+          style={{
+            paddingTop: "env(safe-area-inset-top)",
+            paddingBottom: "env(safe-area-inset-bottom)",
+          }}
         >
           <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <span className="font-display text-lg font-bold">
@@ -166,20 +175,25 @@ export function Header() {
             <button
               onClick={() => setOpen(false)}
               aria-label="Închide meniul"
-              className="grid h-10 w-10 place-items-center rounded-full text-foreground hover:bg-secondary"
+              className="grid h-10 w-10 place-items-center rounded-full text-foreground transition-colors hover:bg-secondary active:scale-95"
             >
               <X className="h-6 w-6" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-3 py-4">
-            {NAV.map((item) => {
+          <div className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+            {NAV.map((item, i) => {
               const isActive = active === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => go(item.id)}
-                  className={`flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-left text-base font-medium transition-colors ${
+                  style={{
+                    transitionDelay: open ? `${80 + i * 35}ms` : "0ms",
+                  }}
+                  className={`flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-left text-base font-medium transition-all duration-300 ease-out active:scale-[0.98] ${
+                    open ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0"
+                  } ${
                     isActive
                       ? "bg-secondary text-primary"
                       : "text-foreground hover:bg-secondary/60"
@@ -197,7 +211,7 @@ export function Header() {
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-base font-semibold text-primary-foreground shadow-soft"
+              className="flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-base font-semibold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] active:scale-95"
               style={{ backgroundColor: "oklch(0.6 0.16 150)" }}
             >
               <WhatsAppIcon className="h-5 w-5" />
