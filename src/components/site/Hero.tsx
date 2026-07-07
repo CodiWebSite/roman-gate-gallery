@@ -25,7 +25,7 @@ export function Hero() {
           Meșteșug românesc autentic
         </p>
         <h1 className="text-balance font-display text-5xl font-bold text-primary-foreground sm:text-7xl">
-          Porți Din Lemn
+          Porți din lemn masiv și stejar
         </h1>
         <p className="mt-4 flex items-center justify-center gap-2.5 text-balance text-xl font-medium text-primary-foreground/95 sm:text-2xl">
           Porți mândre românești <RomanianFlag />

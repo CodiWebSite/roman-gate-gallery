@@ -2,7 +2,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 
 export const Route = createFileRoute("/cookies")({
-  head: () => ({ meta: [{ title: "Politică cookies · Porți Din Lemn" }] }),
+  head: () => ({
+    meta: [
+      { title: "Politică cookies · Porți Din Lemn" },
+      { name: "description", content: "Politica de cookies Porți Din Lemn: ce sunt cookie-urile, cum le folosim pentru funcționarea site-ului și analiză și cum le poți gestiona din browser." },
+      { property: "og:title", content: "Politică cookies · Porți Din Lemn" },
+      { property: "og:description", content: "Ce cookie-uri folosim și cum le poți controla din browser." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://portidinlemn.ro/cookies" },
+    ],
+    links: [{ rel: "canonical", href: "https://portidinlemn.ro/cookies" }],
+  }),
   component: () => (
     <LegalPage title="Politică cookies">
       <p>

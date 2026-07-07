@@ -8,7 +8,11 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Autentificare · Porți Din Lemn" },
+      { name: "description", content: "Pagina de autentificare pentru administrarea site-ului Porți Din Lemn." },
       { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "Autentificare · Porți Din Lemn" },
+      { property: "og:description", content: "Acces la panoul de administrare Porți Din Lemn." },
+      { property: "og:type", content: "website" },
     ],
   }),
   component: AuthPage,

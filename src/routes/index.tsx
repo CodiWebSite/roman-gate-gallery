@@ -58,7 +58,10 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: ogImage },
     ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/` }],
+    links: [
+      { rel: "canonical", href: `${SITE_URL}/` },
+      { rel: "preload", as: "image", href: "/images/hero.jpg", fetchPriority: "high" },
+    ],
     scripts: [
       { type: "application/ld+json", children: JSON.stringify(jsonLd) },
     ],
