@@ -574,12 +574,21 @@ function VideosManager() {
 }
 
 /* ---------- Testimonials ---------- */
+const STATUS_META: Record<string, { label: string; cls: string }> = {
+  pending: { label: "În așteptare", cls: "bg-amber-500/15 text-amber-700" },
+  approved: { label: "Aprobat", cls: "bg-forest/15 text-forest" },
+  rejected: { label: "Respins", cls: "bg-destructive/15 text-destructive" },
+};
+
 function TestimonialsManager() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "testimonials"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("testimonials").select("*").order("sort_order");
+      const { data, error } = await supabase
+        .from("testimonials")
+        .select("*")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Testimonial[];
     },
@@ -592,6 +601,7 @@ function TestimonialsManager() {
     const max = Math.max(0, ...(data ?? []).map((t) => t.sort_order));
     const { error } = await supabase.from("testimonials").insert({
       author: "Client nou", content: "Recenzie...", rating: 5, sort_order: max + 1,
+      status: "approved", published: true,
     });
     if (error) return toast.error(error.message);
     refresh();
@@ -601,6 +611,15 @@ function TestimonialsManager() {
     if (error) return toast.error(error.message);
     refresh();
   };
+  const approve = async (t: Testimonial) => {
+    const max = Math.max(0, ...(data ?? []).map((x) => x.sort_order));
+    await update(t.id, { status: "approved", published: true, sort_order: t.sort_order || max + 1 });
+    toast.success("Recenzie aprobată și publicată.");
+  };
+  const reject = async (id: string) => {
+    await update(id, { status: "rejected", published: false });
+    toast.success("Recenzie respinsă.");
+  };
   const remove = async (id: string) => {
     if (!confirm("Ștergi acest testimonial?")) return;
     const { error } = await supabase.from("testimonials").delete().eq("id", id);
@@ -608,46 +627,95 @@ function TestimonialsManager() {
     refresh();
   };
 
+  const list = data ?? [];
+  const order = { pending: 0, approved: 1, rejected: 2 } as Record<string, number>;
+  const sorted = [...list].sort(
+    (a, b) => (order[a.status] ?? 3) - (order[b.status] ?? 3),
+  );
+  const pendingCount = list.filter((t) => t.status === "pending").length;
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold">Testimoniale</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold">Testimoniale</h2>
+          {pendingCount > 0 && (
+            <span className="rounded-full bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-700">
+              {pendingCount} de aprobat
+            </span>
+          )}
+        </div>
         <button onClick={add} className="inline-flex items-center gap-2 rounded-full bg-gradient-warm px-4 py-2 text-sm font-semibold text-primary-foreground">
           <Plus className="h-4 w-4" /> Adaugă
         </button>
       </div>
       {isLoading ? (
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      ) : sorted.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Nicio recenzie momentan.</p>
       ) : (
         <div className="space-y-4">
-          {(data ?? []).map((t) => (
-            <div key={t.id} className="grid gap-2 rounded-2xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto]">
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Input label="Autor" value={t.author} onBlur={(v) => update(t.id, { author: v })} />
-                <Input label="Localitate" value={t.location || ""} onBlur={(v) => update(t.id, { location: v })} />
-                <div className="sm:col-span-2">
-                  <Input label="Recenzie" value={t.content} onBlur={(v) => update(t.id, { content: v })} />
-                </div>
-                <div className="flex flex-wrap items-end gap-4">
-                  <div>
-                    <Lbl>Stele</Lbl>
-                    <select defaultValue={t.rating} onChange={(e) => update(t.id, { rating: Number(e.target.value) })} className="rounded-lg border border-input bg-background px-3 py-2 text-sm">
-                      {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
-                    </select>
+          {sorted.map((t) => {
+            const meta = STATUS_META[t.status] ?? STATUS_META.pending;
+            return (
+              <div
+                key={t.id}
+                className={`grid gap-3 rounded-2xl border bg-card p-4 sm:grid-cols-[1fr_auto] ${
+                  t.status === "pending" ? "border-amber-500/50 ring-1 ring-amber-500/30" : "border-border"
+                }`}
+              >
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="sm:col-span-2 flex items-center gap-2">
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${meta.cls}`}>
+                      {meta.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(t.created_at).toLocaleDateString("ro-RO")}
+                    </span>
                   </div>
-                  <Toggle label="Publicat" checked={t.published} onChange={(v) => update(t.id, { published: v })} />
+                  <Input label="Autor" value={t.author} onBlur={(v) => update(t.id, { author: v })} />
+                  <Input label="Localitate" value={t.location || ""} onBlur={(v) => update(t.id, { location: v })} />
+                  <div className="sm:col-span-2">
+                    <Input label="Recenzie" value={t.content} onBlur={(v) => update(t.id, { content: v })} />
+                  </div>
+                  <div className="flex flex-wrap items-end gap-4">
+                    <div>
+                      <Lbl>Stele</Lbl>
+                      <select defaultValue={t.rating} onChange={(e) => update(t.id, { rating: Number(e.target.value) })} className="rounded-lg border border-input bg-background px-3 py-2 text-sm">
+                        {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
+                      </select>
+                    </div>
+                    <Toggle label="Publicat" checked={t.published} onChange={(v) => update(t.id, { published: v })} />
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 sm:flex-col">
+                  {t.status !== "approved" && (
+                    <button
+                      onClick={() => approve(t)}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-forest px-3 py-2 text-xs font-semibold text-forest-foreground"
+                    >
+                      <Check className="h-4 w-4" /> Aprobă
+                    </button>
+                  )}
+                  {t.status !== "rejected" && (
+                    <button
+                      onClick={() => reject(t.id)}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-semibold hover:bg-secondary"
+                    >
+                      <XIcon className="h-4 w-4" /> Respinge
+                    </button>
+                  )}
+                  <IconBtn danger onClick={() => remove(t.id)}><Trash2 className="h-4 w-4" /></IconBtn>
                 </div>
               </div>
-              <div className="flex sm:flex-col">
-                <IconBtn danger onClick={() => remove(t.id)}><Trash2 className="h-4 w-4" /></IconBtn>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
+
 
 /* ---------- Settings ---------- */
 const SETTING_FIELDS = [
