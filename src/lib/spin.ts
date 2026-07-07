@@ -168,7 +168,9 @@ async function extractSpinFramesFfmpeg(
   targetWidth = 1000,
   quality = 0.82,
   onProgress?: ExtractProgress,
+  onPhase?: ExtractPhase,
 ): Promise<Blob[]> {
+  onPhase?.("ffmpeg", "Se încarcă convertorul video (o singură dată)…");
   const ffmpeg = await getFfmpeg();
   const inputName = "input" + (file.name.match(/\.[a-z0-9]+$/i)?.[0] || ".mp4");
 
@@ -178,10 +180,17 @@ async function extractSpinFramesFfmpeg(
     const m = message.match(/Duration:\s*(\d+):(\d+):(\d+\.?\d*)/);
     if (m) duration = (+m[1]) * 3600 + (+m[2]) * 60 + parseFloat(m[3]);
   };
+  // Progresul real al conversiei (0..1) în timpul extragerii.
+  const onProg = ({ progress }: { progress: number }) => {
+    const p = Math.max(0, Math.min(1, progress || 0));
+    onProgress?.(Math.round(p * frameCount), frameCount);
+  };
   ffmpeg.on("log", onLog);
+  ffmpeg.on("progress", onProg);
 
   try {
     const { fetchFile } = await import("@ffmpeg/util");
+    onPhase?.("ffmpeg", "Se citește fișierul…");
     await ffmpeg.writeFile(inputName, await fetchFile(file));
 
     // Prima trecere: obține durata (comanda eșuează intenționat, dar loghează durata).
@@ -191,6 +200,7 @@ async function extractSpinFramesFfmpeg(
       /* așteptat: fără output */
     }
 
+    onPhase?.("ffmpeg", "Se extrag cadrele 360°…");
     const fps = duration > 0 ? frameCount / duration : 12;
     const q = Math.max(2, Math.round((1 - quality) * 30) + 2); // ffmpeg qscale 2 (best) .. ~10
     await ffmpeg.exec([
