@@ -268,6 +268,34 @@ export function RealWorks() {
                 </button>
               )}
             </div>
+
+            {images.length > 1 && (
+              <div className="mt-4 flex max-w-full justify-start gap-2 overflow-x-auto pb-1 sm:justify-center">
+                {images.map((img, i) => (
+                  <button
+                    key={img.id}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIndex(i);
+                      setScale(1);
+                      setPan({ x: 0, y: 0 });
+                    }}
+                    aria-label={`Vezi imaginea ${i + 1}`}
+                    className={`h-14 w-16 flex-shrink-0 overflow-hidden rounded-md bg-black transition-all ${
+                      i === index ? "ring-2 ring-white" : "opacity-50 hover:opacity-100"
+                    }`}
+                  >
+                    <img
+                      src={img.image_url}
+                      alt={img.alt_text || ""}
+                      className="h-full w-full object-cover"
+                      draggable={false}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
