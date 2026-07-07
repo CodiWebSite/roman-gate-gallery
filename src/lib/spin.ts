@@ -7,7 +7,30 @@
 
 export type ExtractProgress = (done: number, total: number) => void;
 
+/**
+ * Punct de intrare: încearcă întâi decodarea nativă (rapidă), iar dacă browserul
+ * nu suportă codecul (ex. .mov / HEVC de pe iPhone), trece pe ffmpeg.wasm.
+ */
 export async function extractSpinFrames(
+  file: File,
+  frameCount = 48,
+  targetWidth = 1000,
+  quality = 0.82,
+  onProgress?: ExtractProgress,
+): Promise<Blob[]> {
+  try {
+    return await extractSpinFramesNative(file, frameCount, targetWidth, quality, onProgress);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    // Codec neacceptat sau decodare eșuată → folosim ffmpeg.wasm (suportă orice format).
+    if (msg === "UNSUPPORTED_CODEC" || msg === "Durată video invalidă." || msg === "Nu s-a putut citi videoul.") {
+      return await extractSpinFramesFfmpeg(file, frameCount, targetWidth, quality, onProgress);
+    }
+    throw err;
+  }
+}
+
+async function extractSpinFramesNative(
   file: File,
   frameCount = 48,
   targetWidth = 1000,
