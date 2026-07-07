@@ -323,33 +323,69 @@ function SpinManager({
 }) {
   const [busy, setBusy] = useState(false);
   const [phase, setPhase] = useState<string>("");
+  const [pct, setPct] = useState<number | null>(null);
+  const [mode, setMode] = useState<"native" | "ffmpeg" | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const hasSpin = (project.spin_frames && project.spin_frames.length > 0) || !!project.spin_video_url;
+  const thumb = preview || (project.spin_frames && project.spin_frames[0]) || null;
 
   const upload = async (file: File) => {
     setBusy(true);
+    setPct(null);
+    setMode(null);
+    setPhase("Se pregătește procesarea…");
     try {
-      setPhase("Se pregătesc cadrele… 0%");
-      const blobs = await extractSpinFrames(file, 48, 1000, 0.82, (d, t) =>
-        setPhase(`Se pregătesc cadrele… ${Math.round((d / t) * 100)}%`),
+      const { frames, thumbnail, mode: usedMode } = await extractSpinFrames(
+        file,
+        48,
+        1000,
+        0.82,
+        (d, t) => setPct(Math.round((d / t) * 100)),
+        (m, stage) => {
+          setMode(m);
+          setPhase(stage);
+        },
       );
-      const urls = await uploadBlobsInBatches(blobs, (d, t) =>
-        setPhase(`Se încarcă… ${Math.round((d / t) * 100)}%`),
-      );
+      // Thumbnail imediat pentru verificare vizuală
+      setPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return URL.createObjectURL(thumbnail);
+      });
+      setPhase("Se încarcă cadrele pe server…");
+      const urls = await uploadBlobsInBatches(frames, (d, t) => setPct(Math.round((d / t) * 100)));
       // curățăm vechiul video dacă exista; păstrăm doar cadrele
       onUpdate(project.id, { spin_frames: urls, spin_video_url: null });
-      toast.success("Rotire 360° adăugată. Clienții pot roti poarta pe site.");
+      toast.success(
+        usedMode === "ffmpeg"
+          ? "Rotire 360° adăugată (convertit cu ffmpeg). Clienții pot roti poarta pe site."
+          : "Rotire 360° adăugată. Clienții pot roti poarta pe site.",
+      );
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Eroare la procesare.");
+      const msg = e instanceof Error ? e.message : "Eroare la procesare.";
+      if (msg.includes("cadre") || msg === "UNSUPPORTED_CODEC") {
+        toast.error(
+          "Nu am putut procesa acest clip. Încearcă un fișier .mp4 (codec H.264) sau reexportă videoul din telefon în format compatibil.",
+          { duration: 8000 },
+        );
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setBusy(false);
       setPhase("");
+      setPct(null);
+      setMode(null);
       if (fileRef.current) fileRef.current.value = "";
     }
   };
 
   const clear = () => {
     if (!confirm("Elimini rotirea 360°?")) return;
+    if (preview) {
+      URL.revokeObjectURL(preview);
+      setPreview(null);
+    }
     onUpdate(project.id, { spin_frames: null, spin_video_url: null });
   };
 
@@ -387,15 +423,57 @@ function SpinManager({
           onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
         />
       </div>
-      <p className="text-xs text-muted-foreground">
-        {busy
-          ? phase
-          : project.spin_frames && project.spin_frames.length > 0
-            ? `Rotire 360° activă (${project.spin_frames.length} cadre). Pe site apare butonul „Rotește 360°”.`
-            : project.spin_video_url
-              ? "Video 360° activ. Reîncarcă pentru a-l optimiza automat în cadre."
-              : "Încarcă clipul în care poarta se rotește complet (mp4). Îl optimizăm automat în cadre — clienții o vor roti singuri cu mouse-ul/degetul."}
-      </p>
+
+      <div className="flex items-start gap-3">
+        {thumb && (
+          <div className="relative shrink-0">
+            <img
+              src={thumb}
+              alt="Previzualizare cadru 360°"
+              className="h-16 w-24 rounded-lg border border-border object-cover"
+            />
+            {busy && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/40">
+                <Loader2 className="h-4 w-4 animate-spin text-white" />
+              </div>
+            )}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          {busy ? (
+            <div className="space-y-1.5">
+              <p className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+                {mode === "ffmpeg" && (
+                  <span className="inline-flex items-center rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-600">
+                    ffmpeg
+                  </span>
+                )}
+                {phase}
+                {pct !== null && <span className="text-muted-foreground">· {pct}%</span>}
+              </p>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full rounded-full transition-all ${pct === null ? "w-1/3 animate-pulse bg-primary/60" : "bg-primary"}`}
+                  style={pct !== null ? { width: `${pct}%` } : undefined}
+                />
+              </div>
+              {mode === "ffmpeg" && (
+                <p className="text-[11px] text-muted-foreground">
+                  Codecul nu e suportat direct de browser, așa că îl convertim automat aici — durează puțin mai mult, dar rezultatul e identic.
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {project.spin_frames && project.spin_frames.length > 0
+                ? `Rotire 360° activă (${project.spin_frames.length} cadre). Pe site apare butonul „Rotește 360°”.`
+                : project.spin_video_url
+                  ? "Video 360° activ. Reîncarcă pentru a-l optimiza automat în cadre."
+                  : "Încarcă clipul în care poarta se rotește complet (mp4 recomandat, H.264). Îl optimizăm automat în cadre — clienții o vor roti singuri cu mouse-ul/degetul. Dacă fișierul e .mov/HEVC de pe iPhone, îl convertim automat."}
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
