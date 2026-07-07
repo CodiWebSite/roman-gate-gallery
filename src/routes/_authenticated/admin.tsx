@@ -4,11 +4,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { claimAdmin } from "@/lib/admin.functions";
+import { claimAdmin, listAdmins, createAdmin, removeAdmin } from "@/lib/admin.functions";
 import { CATEGORIES, type Project, type VideoItem, type Testimonial, type ProjectSketch, type ProjectPhoto } from "@/lib/site";
 import { extractSpinFrames } from "@/lib/spin";
 import {
-  LogOut, Plus, Trash2, ArrowUp, ArrowDown, Loader2, ImageIcon, Video, Star, Settings as SettingsIcon, ExternalLink, Ruler, Hammer, Check, X as XIcon, RotateCw,
+  LogOut, Plus, Trash2, ArrowUp, ArrowDown, Loader2, ImageIcon, Video, Star, Settings as SettingsIcon, ExternalLink, Ruler, Hammer, Check, X as XIcon, RotateCw, Users,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
