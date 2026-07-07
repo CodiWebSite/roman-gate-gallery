@@ -1,22 +1,28 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { RotateCw, Loader2, MousePointer2 } from "lucide-react";
 
-const FRAME_COUNT = 48; // cadre extrase pentru o rotație completă
-const CAPTURE_WIDTH = 960; // lățimea la care capturăm cadrele (echilibru calitate/memorie)
+const FRAME_COUNT = 48; // cadre extrase din video (mod fallback)
+const CAPTURE_WIDTH = 1000;
 
 type Props = {
-  videoUrl: string;
+  /** Cadre pre-extrase (mod rapid, recomandat). */
+  frames?: string[] | null;
+  /** Video 360° din care se extrag cadrele la deschidere (fallback). */
+  videoUrl?: string | null;
   title?: string;
 };
 
+type Frame = CanvasImageSource & { width: number; height: number };
+
 /**
- * Vizualizator 360°: încarcă un clip în care obiectul se rotește complet,
- * extrage cadre uniform distribuite și permite rotirea cu mouse-ul / degetul.
- * Dacă extragerea eșuează (CORS etc.), afișează clipul video ca fallback.
+ * Vizualizator 360°: rotire interactivă cu mouse-ul / degetul.
+ * - Dacă are `frames`, le încarcă direct (instant, fluid pe orice telefon).
+ * - Altfel extrage cadre din `videoUrl`.
  */
-export function Spin360({ videoUrl, title }: Props) {
+export function Spin360({ frames, videoUrl, title }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const framesRef = useRef<ImageBitmap[]>([]);
+  const framesRef = useRef<Frame[]>([]);
+  const bitmapsRef = useRef<ImageBitmap[]>([]);
   const indexRef = useRef(0);
   const draggingRef = useRef(false);
   const lastXRef = useRef(0);
@@ -29,20 +35,56 @@ export function Spin360({ videoUrl, title }: Props) {
 
   const draw = useCallback((i: number) => {
     const canvas = canvasRef.current;
-    const frames = framesRef.current;
-    if (!canvas || frames.length === 0) return;
-    const bmp = frames[((i % frames.length) + frames.length) % frames.length];
+    const fr = framesRef.current;
+    if (!canvas || fr.length === 0) return;
+    const img = fr[((i % fr.length) + fr.length) % fr.length];
     const ctx = canvas.getContext("2d");
-    if (!ctx || !bmp) return;
-    if (canvas.width !== bmp.width || canvas.height !== bmp.height) {
-      canvas.width = bmp.width;
-      canvas.height = bmp.height;
+    if (!ctx || !img) return;
+    if (canvas.width !== img.width || canvas.height !== img.height) {
+      canvas.width = img.width;
+      canvas.height = img.height;
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(bmp, 0, 0);
+    ctx.drawImage(img, 0, 0);
   }, []);
 
+  // ---- Mod cadre pre-extrase (preferat) ----
   useEffect(() => {
+    if (!frames || frames.length === 0) return;
+    let cancelled = false;
+    let loaded = 0;
+    const imgs: HTMLImageElement[] = [];
+
+    frames.forEach((src, idx) => {
+      const img = new Image();
+      img.decoding = "async";
+      img.onload = () => {
+        if (cancelled) return;
+        loaded += 1;
+        setProgress(Math.round((loaded / frames.length) * 100));
+        if (loaded === frames.length) {
+          framesRef.current = imgs as unknown as Frame[];
+          setReady(true);
+          requestAnimationFrame(() => draw(0));
+        }
+      };
+      img.onerror = () => {
+        if (!cancelled) setFailed(true);
+      };
+      img.src = src;
+      imgs[idx] = img;
+    });
+
+    return () => {
+      cancelled = true;
+      framesRef.current = [];
+    };
+  }, [frames, draw]);
+
+  // ---- Mod extragere din video (fallback) ----
+  useEffect(() => {
+    if (frames && frames.length > 0) return;
+    if (!videoUrl) return;
     let cancelled = false;
     const video = document.createElement("video");
     video.muted = true;
@@ -50,8 +92,6 @@ export function Spin360({ videoUrl, title }: Props) {
     video.playsInline = true;
     video.setAttribute("playsinline", "");
     video.preload = "auto";
-    // atașăm ascuns în DOM — unele browsere (iOS Safari) nu redau/seek corect
-    // un element video detașat.
     video.style.cssText =
       "position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0;pointer-events:none;";
     document.body.appendChild(video);
@@ -106,7 +146,6 @@ export function Spin360({ videoUrl, title }: Props) {
         capture.height = Math.round(CAPTURE_WIDTH * ratio);
 
         const bitmaps: ImageBitmap[] = [];
-        // evităm ultimul cadru identic cu primul (buclă) folosind duration * i/FRAME_COUNT
         for (let i = 0; i < FRAME_COUNT; i++) {
           if (cancelled) return;
           const t = (duration * i) / FRAME_COUNT;
@@ -121,7 +160,8 @@ export function Spin360({ videoUrl, title }: Props) {
           bitmaps.forEach((b) => b.close());
           return;
         }
-        framesRef.current = bitmaps;
+        bitmapsRef.current = bitmaps;
+        framesRef.current = bitmaps as unknown as Frame[];
         setReady(true);
         requestAnimationFrame(() => draw(0));
       } catch {
@@ -133,13 +173,14 @@ export function Spin360({ videoUrl, title }: Props) {
 
     return () => {
       cancelled = true;
-      framesRef.current.forEach((b) => b.close());
+      bitmapsRef.current.forEach((b) => b.close());
+      bitmapsRef.current = [];
       framesRef.current = [];
       video.removeAttribute("src");
       video.load();
       video.remove();
     };
-  }, [videoUrl, draw]);
+  }, [frames, videoUrl, draw]);
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (!ready) return;
@@ -159,8 +200,8 @@ export function Spin360({ videoUrl, title }: Props) {
       setHintVisible(false);
     }
     const width = canvasRef.current?.clientWidth || 600;
-    // o lățime completă de drag = o rotație completă
-    const step = (dx / width) * FRAME_COUNT;
+    const count = framesRef.current.length || FRAME_COUNT;
+    const step = (dx / width) * count;
     indexRef.current += step;
     draw(Math.round(indexRef.current));
   };
@@ -170,13 +211,20 @@ export function Spin360({ videoUrl, title }: Props) {
   };
 
   if (failed) {
+    if (videoUrl) {
+      return (
+        <video
+          controls
+          playsInline
+          className="max-h-[70vh] w-auto rounded-xl bg-black"
+          src={videoUrl}
+        />
+      );
+    }
     return (
-      <video
-        controls
-        playsInline
-        className="max-h-[70vh] w-auto rounded-xl bg-black"
-        src={videoUrl}
-      />
+      <p className="rounded-xl bg-black/60 px-6 py-8 text-center text-sm text-white">
+        Nu s-a putut încărca vizualizarea 360°.
+      </p>
     );
   }
 
