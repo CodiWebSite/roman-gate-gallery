@@ -5,7 +5,8 @@ import {
   usePublishedSketches,
   usePublishedPhotos,
 } from "@/lib/site";
-import { MapPin, Ruler, Images, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
+import { MapPin, Ruler, Images, X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
+import { Spin360 } from "@/components/site/Spin360";
 
 type GalleryImage = { id: string; image_url: string; alt_text: string | null };
 
@@ -18,6 +19,7 @@ export function Portfolio() {
   const [images, setImages] = useState<GalleryImage[] | null>(null);
   const [openTitle, setOpenTitle] = useState("");
   const [openKind, setOpenKind] = useState<"photo" | "sketch">("photo");
+  const [spin, setSpin] = useState<{ url: string; title: string } | null>(null);
   const [index, setIndex] = useState(0);
 
   const [scale, setScale] = useState(1);
@@ -173,6 +175,11 @@ export function Portfolio() {
                           <Images className="h-3.5 w-3.5" /> {allPhotos.length}
                         </span>
                       )}
+                      {p.spin_video_url && (
+                        <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground shadow-soft">
+                          <RotateCw className="h-3.5 w-3.5" /> 360°
+                        </span>
+                      )}
                     </button>
                     <div className="flex flex-1 flex-col p-5">
                       <div className="mb-2 flex items-center justify-end gap-2">
@@ -187,6 +194,16 @@ export function Portfolio() {
                         <p className="mt-1 text-sm text-muted-foreground">{p.description}</p>
                       )}
                       <div className="mt-4 flex flex-wrap gap-2">
+                        {p.spin_video_url && (
+                          <button
+                            type="button"
+                            onClick={() => setSpin({ url: p.spin_video_url!, title: p.title })}
+                            className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-transform hover:scale-105"
+                          >
+                            <RotateCw className="h-4 w-4" />
+                            Rotește 360°
+                          </button>
+                        )}
                         {extraPhotos.length > 0 && (
                           <button
                             type="button"
@@ -331,6 +348,31 @@ export function Portfolio() {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {spin && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-4"
+          onClick={() => setSpin(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Vizualizare 360° ${spin.title}`}
+        >
+          <button
+            type="button"
+            onClick={() => setSpin(null)}
+            aria-label="Închide"
+            className="absolute right-4 top-4 z-20 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-foreground shadow-lg transition-colors hover:bg-white"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <div className="flex w-full flex-col items-center" onClick={(e) => e.stopPropagation()}>
+            {spin.title && (
+              <p className="mb-3 text-center text-base font-semibold text-white">{spin.title}</p>
+            )}
+            <Spin360 videoUrl={spin.url} title={spin.title} />
           </div>
         </div>
       )}

@@ -1,0 +1,1 @@
+UPDATE public.projects SET spin_video_url = '/__l5e/assets-v1/e95e0883-43f8-415e-8a9b-ef62eef4a7f6/spin-p1-360.mp4' WHERE id = 'f5fbb478-a46d-4b61-afc3-6069254db82e';
