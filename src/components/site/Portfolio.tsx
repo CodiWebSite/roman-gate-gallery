@@ -19,7 +19,7 @@ export function Portfolio() {
   const [images, setImages] = useState<GalleryImage[] | null>(null);
   const [openTitle, setOpenTitle] = useState("");
   const [openKind, setOpenKind] = useState<"photo" | "sketch">("photo");
-  const [spin, setSpin] = useState<{ url: string; title: string } | null>(null);
+  const [spin, setSpin] = useState<{ frames: string[] | null; url: string | null; title: string } | null>(null);
   const [index, setIndex] = useState(0);
 
   const [scale, setScale] = useState(1);
@@ -175,7 +175,7 @@ export function Portfolio() {
                           <Images className="h-3.5 w-3.5" /> {allPhotos.length}
                         </span>
                       )}
-                      {p.spin_video_url && (
+                      {(p.spin_video_url || (p.spin_frames && p.spin_frames.length > 0)) && (
                         <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground shadow-soft">
                           <RotateCw className="h-3.5 w-3.5" /> 360°
                         </span>
@@ -194,10 +194,17 @@ export function Portfolio() {
                         <p className="mt-1 text-sm text-muted-foreground">{p.description}</p>
                       )}
                       <div className="mt-4 flex flex-wrap gap-2">
-                        {p.spin_video_url && (
+                        {(p.spin_video_url || (p.spin_frames && p.spin_frames.length > 0)) && (
                           <button
                             type="button"
-                            onClick={() => setSpin({ url: p.spin_video_url!, title: p.title })}
+                            onClick={() =>
+                              setSpin({
+                                frames:
+                                  p.spin_frames && p.spin_frames.length > 0 ? p.spin_frames : null,
+                                url: p.spin_video_url,
+                                title: p.title,
+                              })
+                            }
                             className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-transform hover:scale-105"
                           >
                             <RotateCw className="h-4 w-4" />
@@ -372,7 +379,7 @@ export function Portfolio() {
             {spin.title && (
               <p className="mb-3 text-center text-base font-semibold text-white">{spin.title}</p>
             )}
-            <Spin360 videoUrl={spin.url} title={spin.title} />
+            <Spin360 frames={spin.frames} videoUrl={spin.url} title={spin.title} />
           </div>
         </div>
       )}
