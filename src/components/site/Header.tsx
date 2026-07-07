@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, DoorClosed } from "lucide-react";
 import { smoothScrollToElement } from "@/lib/smooth-scroll";
 import { useSettings, whatsappLink } from "@/lib/site";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
