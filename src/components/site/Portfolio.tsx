@@ -19,7 +19,7 @@ export function Portfolio() {
   const [images, setImages] = useState<GalleryImage[] | null>(null);
   const [openTitle, setOpenTitle] = useState("");
   const [openKind, setOpenKind] = useState<"photo" | "sketch">("photo");
-  const [spin, setSpin] = useState<{ url: string; title: string } | null>(null);
+  const [spin, setSpin] = useState<{ frames: string[] | null; url: string | null; title: string } | null>(null);
   const [index, setIndex] = useState(0);
 
   const [scale, setScale] = useState(1);
