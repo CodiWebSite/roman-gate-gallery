@@ -87,8 +87,7 @@ export function Footer() {
         <div className="mt-10 border-t border-background/15 pt-6 text-sm text-background/80">
           <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
             <p>
-              © {year} {s?.company_name || "Porți Din Lemn SRL"}. Toate drepturile rezervate. ·{" "}
-              <Link to="/admin" className="hover:text-primary">Admin</Link>
+              © {year} {s?.company_name || "Porți Din Lemn SRL"}. Toate drepturile rezervate.
             </p>
             <a
               href="https://webcraft.djfunkyevents.ro/"
