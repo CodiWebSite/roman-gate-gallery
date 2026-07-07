@@ -320,38 +320,48 @@ function SpinManager({
   project: Project;
   onUpdate: (id: string, patch: Partial<Project>) => void;
 }) {
-  const [uploading, setUploading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [phase, setPhase] = useState<string>("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const hasSpin = (project.spin_frames && project.spin_frames.length > 0) || !!project.spin_video_url;
 
   const upload = async (file: File) => {
-    setUploading(true);
+    setBusy(true);
     try {
-      const url = await uploadFile(file, "video");
-      onUpdate(project.id, { spin_video_url: url });
-      toast.success("Video 360° adăugat. Clienții pot roti poarta pe site.");
+      setPhase("Se pregătesc cadrele… 0%");
+      const blobs = await extractSpinFrames(file, 48, 1000, 0.82, (d, t) =>
+        setPhase(`Se pregătesc cadrele… ${Math.round((d / t) * 100)}%`),
+      );
+      const urls = await uploadBlobsInBatches(blobs, (d, t) =>
+        setPhase(`Se încarcă… ${Math.round((d / t) * 100)}%`),
+      );
+      // curățăm vechiul video dacă exista; păstrăm doar cadrele
+      onUpdate(project.id, { spin_frames: urls, spin_video_url: null });
+      toast.success("Rotire 360° adăugată. Clienții pot roti poarta pe site.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Eroare la încărcare.");
+      toast.error(e instanceof Error ? e.message : "Eroare la procesare.");
     } finally {
-      setUploading(false);
+      setBusy(false);
+      setPhase("");
       if (fileRef.current) fileRef.current.value = "";
     }
   };
 
   const clear = () => {
-    if (!confirm("Elimini videoul 360°?")) return;
-    onUpdate(project.id, { spin_video_url: null });
+    if (!confirm("Elimini rotirea 360°?")) return;
+    onUpdate(project.id, { spin_frames: null, spin_video_url: null });
   };
 
   return (
     <div className="rounded-xl border border-dashed border-border bg-secondary/30 p-3">
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <Lbl>
           <span className="inline-flex items-center gap-1">
-            <RotateCw className="h-3.5 w-3.5" /> Video 360° (rotire interactivă)
+            <RotateCw className="h-3.5 w-3.5" /> Rotire 360° (interactivă)
           </span>
         </Lbl>
         <div className="flex items-center gap-2">
-          {project.spin_video_url && (
+          {hasSpin && !busy && (
             <button
               onClick={clear}
               className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-muted"
@@ -361,11 +371,11 @@ function SpinManager({
           )}
           <button
             onClick={() => fileRef.current?.click()}
-            disabled={uploading}
+            disabled={busy}
             className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold hover:bg-muted disabled:opacity-60"
           >
-            {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
-            {project.spin_video_url ? "Înlocuiește" : "Adaugă video 360°"}
+            {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+            {hasSpin ? "Înlocuiește" : "Adaugă video 360°"}
           </button>
         </div>
         <input
@@ -377,13 +387,18 @@ function SpinManager({
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        {project.spin_video_url
-          ? "Video 360° încărcat. Pe site apare butonul „Rotește 360°”."
-          : "Încarcă clipul în care poarta se rotește complet (mp4). Clienții o vor roti singuri cu mouse-ul/degetul."}
+        {busy
+          ? phase
+          : project.spin_frames && project.spin_frames.length > 0
+            ? `Rotire 360° activă (${project.spin_frames.length} cadre). Pe site apare butonul „Rotește 360°”.`
+            : project.spin_video_url
+              ? "Video 360° activ. Reîncarcă pentru a-l optimiza automat în cadre."
+              : "Încarcă clipul în care poarta se rotește complet (mp4). Îl optimizăm automat în cadre — clienții o vor roti singuri cu mouse-ul/degetul."}
       </p>
     </div>
   );
 }
+
 
 
 /* ---------- Sketches (per project) ---------- */
