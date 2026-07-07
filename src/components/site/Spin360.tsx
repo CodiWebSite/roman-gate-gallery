@@ -351,7 +351,14 @@ export function Spin360({ frames, videoUrl, title }: Props) {
 
   return (
     <div className="relative w-full max-w-3xl">
-      <div ref={wrapRef} className="relative overflow-hidden rounded-xl bg-black">
+      <div
+        ref={wrapRef}
+        className={
+          isFullscreen
+            ? "relative flex h-screen w-screen items-center justify-center overflow-hidden bg-black"
+            : "relative overflow-hidden rounded-xl bg-black"
+        }
+      >
         <canvas
           ref={canvasRef}
           onPointerDown={onPointerDown}
@@ -360,7 +367,11 @@ export function Spin360({ frames, videoUrl, title }: Props) {
           onPointerCancel={onPointerUp}
           onWheel={onWheel}
           onDoubleClick={onDoubleClick}
-          className="mx-auto block max-h-[70vh] w-full touch-none select-none"
+          className={
+            isFullscreen
+              ? "block max-h-screen w-auto max-w-full touch-none select-none"
+              : "mx-auto block max-h-[70vh] w-full touch-none select-none"
+          }
           style={{
             cursor: ready ? (scale > 1 ? "grab" : "ew-resize") : "default",
             aspectRatio: "16 / 9",
@@ -369,6 +380,7 @@ export function Spin360({ frames, videoUrl, title }: Props) {
           }}
           aria-label={title ? `Vizualizare 360° ${title}` : "Vizualizare 360°"}
         />
+
 
         {!ready && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white">
