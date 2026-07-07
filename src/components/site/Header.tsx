@@ -81,8 +81,8 @@ export function Header() {
             scrolled || open ? "text-foreground" : "text-primary-foreground"
           }`}
         >
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-warm text-base text-primary-foreground shadow-soft">
-            🚪
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-warm text-primary-foreground shadow-soft">
+            <DoorClosed className="h-5 w-5" />
           </span>
           <span className="truncate">
             Porți{" "}
