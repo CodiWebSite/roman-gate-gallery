@@ -441,11 +441,6 @@ export function Spin360({ frames, videoUrl, title }: Props) {
         </p>
       )}
 
-      {ready && (
-        <p className="mt-3 flex items-center justify-center gap-2 text-center text-sm text-white/70">
-          <RotateCw className="h-4 w-4" /> Rotește 360° cu mouse-ul sau degetul
-        </p>
-      )}
     </div>
   );
 }
