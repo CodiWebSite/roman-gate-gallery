@@ -234,6 +234,7 @@ async function extractSpinFramesFfmpeg(
     return blobs;
   } finally {
     ffmpeg.off("log", onLog);
+    ffmpeg.off("progress", onProg);
     await ffmpeg.deleteFile(inputName).catch(() => {});
   }
 }
