@@ -35,6 +35,9 @@
   --color-forest: var(--forest);
   --color-forest-foreground: var(--forest-foreground);
   --color-cream: var(--cream);
+  --color-ro-blue: var(--ro-blue);
+  --color-ro-yellow: var(--ro-yellow);
+  --color-ro-red: var(--ro-red);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
