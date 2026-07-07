@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { RotateCw, Loader2, MousePointer2 } from "lucide-react";
+import { RotateCw, Loader2, MousePointer2, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
+
+const MIN_SCALE = 1;
+const MAX_SCALE = 4;
 
 const FRAME_COUNT = 48; // cadre extrase din video (mod fallback)
 const CAPTURE_WIDTH = 1000;
@@ -26,12 +29,51 @@ export function Spin360({ frames, videoUrl, title }: Props) {
   const indexRef = useRef(0);
   const draggingRef = useRef(false);
   const lastXRef = useRef(0);
+  const lastYRef = useRef(0);
   const movedRef = useRef(false);
+
+  // zoom / pan
+  const scaleRef = useRef(1);
+  const offsetRef = useRef({ x: 0, y: 0 });
+  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchStartDistRef = useRef(0);
+  const pinchStartScaleRef = useRef(1);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
 
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [hintVisible, setHintVisible] = useState(true);
+
+  const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+
+  const applyTransform = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const s = scaleRef.current;
+    let { x, y } = offsetRef.current;
+    // limitează panoramarea la marginile imaginii
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    const maxX = (w * (s - 1)) / 2;
+    const maxY = (h * (s - 1)) / 2;
+    x = clamp(x, -maxX, maxX);
+    y = clamp(y, -maxY, maxY);
+    offsetRef.current = { x, y };
+    canvas.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+  }, []);
+
+  const setZoom = useCallback(
+    (next: number) => {
+      const s = clamp(next, MIN_SCALE, MAX_SCALE);
+      scaleRef.current = s;
+      if (s === 1) offsetRef.current = { x: 0, y: 0 };
+      setScale(s);
+      applyTransform();
+    },
+    [applyTransform],
+  );
 
   const draw = useCallback((i: number) => {
     const canvas = canvasRef.current;
@@ -182,16 +224,60 @@ export function Spin360({ frames, videoUrl, title }: Props) {
     };
   }, [frames, videoUrl, draw]);
 
+  const dist = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+    Math.hypot(a.x - b.x, a.y - b.y);
+
   const onPointerDown = (e: React.PointerEvent) => {
     if (!ready) return;
     (e.target as Element).setPointerCapture?.(e.pointerId);
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointersRef.current.size === 2) {
+      const [p1, p2] = [...pointersRef.current.values()];
+      pinchStartDistRef.current = dist(p1, p2);
+      pinchStartScaleRef.current = scaleRef.current;
+      draggingRef.current = false;
+      return;
+    }
     draggingRef.current = true;
     movedRef.current = false;
     lastXRef.current = e.clientX;
+    lastYRef.current = e.clientY;
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!draggingRef.current || !ready) return;
+    if (!ready) return;
+    if (pointersRef.current.has(e.pointerId)) {
+      pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+
+    // pinch-to-zoom (2 degete)
+    if (pointersRef.current.size === 2) {
+      const [p1, p2] = [...pointersRef.current.values()];
+      const d = dist(p1, p2);
+      if (pinchStartDistRef.current > 0) {
+        setZoom((pinchStartScaleRef.current * d) / pinchStartDistRef.current);
+      }
+      return;
+    }
+
+    if (!draggingRef.current) return;
+
+    // panoramare când e mărit
+    if (scaleRef.current > 1) {
+      const dx = e.clientX - lastXRef.current;
+      const dy = e.clientY - lastYRef.current;
+      lastXRef.current = e.clientX;
+      lastYRef.current = e.clientY;
+      offsetRef.current = {
+        x: offsetRef.current.x + dx,
+        y: offsetRef.current.y + dy,
+      };
+      applyTransform();
+      return;
+    }
+
+    // rotire 360°
     const dx = e.clientX - lastXRef.current;
     if (Math.abs(dx) < 3) return;
     lastXRef.current = e.clientX;
@@ -206,8 +292,20 @@ export function Spin360({ frames, videoUrl, title }: Props) {
     draw(Math.round(indexRef.current));
   };
 
-  const onPointerUp = () => {
-    draggingRef.current = false;
+  const onPointerUp = (e: React.PointerEvent) => {
+    pointersRef.current.delete(e.pointerId);
+    if (pointersRef.current.size < 2) pinchStartDistRef.current = 0;
+    if (pointersRef.current.size === 0) draggingRef.current = false;
+  };
+
+  const onWheel = (e: React.WheelEvent) => {
+    if (!ready) return;
+    setZoom(scaleRef.current - Math.sign(e.deltaY) * 0.3);
+  };
+
+  const onDoubleClick = () => {
+    if (!ready) return;
+    setZoom(scaleRef.current > 1 ? 1 : 2);
   };
 
   if (failed) {
@@ -230,15 +328,22 @@ export function Spin360({ frames, videoUrl, title }: Props) {
 
   return (
     <div className="relative w-full max-w-3xl">
-      <div className="relative overflow-hidden rounded-xl bg-black">
+      <div ref={wrapRef} className="relative overflow-hidden rounded-xl bg-black">
         <canvas
           ref={canvasRef}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
+          onWheel={onWheel}
+          onDoubleClick={onDoubleClick}
           className="mx-auto block max-h-[70vh] w-full touch-none select-none"
-          style={{ cursor: ready ? "grab" : "default", aspectRatio: "16 / 9" }}
+          style={{
+            cursor: ready ? (scale > 1 ? "grab" : "ew-resize") : "default",
+            aspectRatio: "16 / 9",
+            transformOrigin: "center center",
+            willChange: "transform",
+          }}
           aria-label={title ? `Vizualizare 360° ${title}` : "Vizualizare 360°"}
         />
 
@@ -255,7 +360,40 @@ export function Spin360({ frames, videoUrl, title }: Props) {
           </div>
         )}
 
-        {ready && hintVisible && (
+        {ready && (
+          <div className="absolute right-3 top-3 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => setZoom(scaleRef.current + 0.5)}
+              disabled={scale >= MAX_SCALE}
+              aria-label="Mărește"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white backdrop-blur-sm transition hover:bg-black/90 disabled:opacity-40"
+            >
+              <ZoomIn className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoom(scaleRef.current - 0.5)}
+              disabled={scale <= MIN_SCALE}
+              aria-label="Micșorează"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white backdrop-blur-sm transition hover:bg-black/90 disabled:opacity-40"
+            >
+              <ZoomOut className="h-4 w-4" />
+            </button>
+            {scale > 1 && (
+              <button
+                type="button"
+                onClick={() => setZoom(1)}
+                aria-label="Resetează zoom"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white backdrop-blur-sm transition hover:bg-black/90"
+              >
+                <Maximize2 className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        )}
+
+        {ready && hintVisible && scale === 1 && (
           <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
             <span className="inline-flex items-center gap-2 rounded-full bg-black/70 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
               <MousePointer2 className="h-4 w-4" />
@@ -264,6 +402,13 @@ export function Spin360({ frames, videoUrl, title }: Props) {
           </div>
         )}
       </div>
+
+      {ready && (
+        <p className="mt-3 flex items-center justify-center gap-2 text-center text-sm text-white/70">
+          <RotateCw className="h-4 w-4" />
+          {scale > 1 ? "Trage pentru a te deplasa · dublu-clic pentru zoom" : "Rotește 360° · scroll / pinch pentru zoom"}
+        </p>
+      )}
 
       {ready && (
         <p className="mt-3 flex items-center justify-center gap-2 text-center text-sm text-white/70">
