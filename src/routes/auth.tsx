@@ -5,7 +5,12 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Autentificare · Porți Din Lemn" }] }),
+  head: () => ({
+    meta: [
+      { title: "Autentificare · Porți Din Lemn" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AuthPage,
 });
 
@@ -16,7 +21,6 @@ const schema = z.object({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,22 +34,12 @@ function AuthPage() {
     }
     setLoading(true);
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin + "/admin" },
-        });
-        if (error) throw error;
-        toast.success("Cont creat. Te poți autentifica.");
-        setMode("login");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        navigate({ to: "/admin" });
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "A apărut o eroare.");
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      navigate({ to: "/admin" });
+    } catch {
+      // Mesaj generic pentru a nu dezvălui dacă emailul există sau nu.
+      toast.error("Email sau parolă incorecte.");
     } finally {
       setLoading(false);
     }
@@ -57,9 +51,7 @@ function AuthPage() {
         <Link to="/" className="font-display text-2xl font-bold">
           Porți <span className="text-primary">Din Lemn</span>
         </Link>
-        <h1 className="mt-6 text-2xl font-bold">
-          {mode === "login" ? "Autentificare admin" : "Creează cont admin"}
-        </h1>
+        <h1 className="mt-6 text-2xl font-bold">Autentificare admin</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Acces la panoul de administrare al site-ului.
         </p>
@@ -69,6 +61,7 @@ function AuthPage() {
             <label className="mb-1.5 block text-sm font-medium">Email</label>
             <input
               type="email"
+              autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
@@ -78,6 +71,7 @@ function AuthPage() {
             <label className="mb-1.5 block text-sm font-medium">Parolă</label>
             <input
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
@@ -88,16 +82,9 @@ function AuthPage() {
             disabled={loading}
             className="w-full rounded-full bg-gradient-warm px-6 py-3 font-semibold text-primary-foreground shadow-soft transition-transform hover:scale-[1.02] disabled:opacity-60"
           >
-            {loading ? "Se procesează..." : mode === "login" ? "Intră în cont" : "Creează cont"}
+            {loading ? "Se procesează..." : "Intră în cont"}
           </button>
         </form>
-
-        <button
-          onClick={() => setMode(mode === "login" ? "signup" : "login")}
-          className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-primary"
-        >
-          {mode === "login" ? "Nu ai cont? Creează unul" : "Ai deja cont? Autentifică-te"}
-        </button>
       </div>
     </div>
   );
