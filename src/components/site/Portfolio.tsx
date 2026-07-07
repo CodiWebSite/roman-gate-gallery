@@ -194,10 +194,17 @@ export function Portfolio() {
                         <p className="mt-1 text-sm text-muted-foreground">{p.description}</p>
                       )}
                       <div className="mt-4 flex flex-wrap gap-2">
-                        {p.spin_video_url && (
+                        {(p.spin_video_url || (p.spin_frames && p.spin_frames.length > 0)) && (
                           <button
                             type="button"
-                            onClick={() => setSpin({ url: p.spin_video_url!, title: p.title })}
+                            onClick={() =>
+                              setSpin({
+                                frames:
+                                  p.spin_frames && p.spin_frames.length > 0 ? p.spin_frames : null,
+                                url: p.spin_video_url,
+                                title: p.title,
+                              })
+                            }
                             className="inline-flex items-center gap-2 self-start rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft transition-transform hover:scale-105"
                           >
                             <RotateCw className="h-4 w-4" />
