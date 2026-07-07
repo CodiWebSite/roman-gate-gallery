@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { RotateCw, Loader2, MousePointer2, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
+import { RotateCw, Loader2, MousePointer2, ZoomIn, ZoomOut, Maximize2, Maximize, Minimize } from "lucide-react";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;
