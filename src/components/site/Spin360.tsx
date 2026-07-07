@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { RotateCw, Loader2, MousePointer2 } from "lucide-react";
+import { RotateCw, Loader2, MousePointer2, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
+
+const MIN_SCALE = 1;
+const MAX_SCALE = 4;
 
 const FRAME_COUNT = 48; // cadre extrase din video (mod fallback)
 const CAPTURE_WIDTH = 1000;
