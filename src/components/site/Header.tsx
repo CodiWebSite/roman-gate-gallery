@@ -47,11 +47,16 @@ export function Header() {
     return () => observer.disconnect();
   }, []);
 
-  // Lock body scroll when mobile drawer open
+  // Lock body scroll + close on Escape when mobile drawer open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    if (open) window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
     };
   }, [open]);
 
