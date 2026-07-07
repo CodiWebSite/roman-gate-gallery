@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, DoorClosed } from "lucide-react";
 import { smoothScrollToElement } from "@/lib/smooth-scroll";
 import { useSettings, whatsappLink } from "@/lib/site";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
@@ -81,8 +81,8 @@ export function Header() {
             scrolled || open ? "text-foreground" : "text-primary-foreground"
           }`}
         >
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-warm text-base text-primary-foreground shadow-soft">
-            🚪
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-warm text-primary-foreground shadow-soft">
+            <DoorClosed className="h-5 w-5" />
           </span>
           <span className="truncate">
             Porți{" "}

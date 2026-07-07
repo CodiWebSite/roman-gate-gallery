@@ -116,7 +116,15 @@ export function RealWorks() {
         {isLoading ? (
           <p className="mt-12 text-center text-muted-foreground">Se încarcă...</p>
         ) : (
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            className={`mt-10 grid gap-6 ${
+              projects.length === 1
+                ? "mx-auto max-w-md"
+                : projects.length === 2
+                  ? "mx-auto max-w-3xl sm:grid-cols-2"
+                  : "sm:grid-cols-2 lg:grid-cols-3"
+            }`}
+          >
             {projects.map((p, i) => {
               const extraPhotos = photoMap?.[p.id] ?? [];
               const allPhotos: GalleryImage[] = [
