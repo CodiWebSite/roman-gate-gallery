@@ -93,30 +93,38 @@ export function Header() {
         </button>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-0.5 lg:flex">
+        <nav
+          className={`hidden items-center gap-1 rounded-full p-1 ring-1 backdrop-blur-md transition-colors lg:flex ${
+            scrolled || open
+              ? "bg-secondary/70 ring-border"
+              : "bg-foreground/25 ring-white/20"
+          }`}
+        >
           {NAV.map((item) => {
             const isActive = active === item.id;
-            const baseColor = scrolled ? "text-foreground" : "text-primary-foreground";
+            const base = scrolled || open ? "text-foreground" : "text-primary-foreground";
+            const activeFill =
+              scrolled || open
+                ? "bg-primary text-primary-foreground shadow-soft"
+                : "bg-primary-foreground text-primary shadow-soft";
+            const hoverFill =
+              scrolled || open
+                ? "hover:bg-primary/15 hover:text-primary"
+                : "hover:bg-primary-foreground/25 hover:text-primary-foreground";
             return (
               <button
                 key={item.id}
                 onClick={() => go(item.id)}
-                className={`relative rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? scrolled
-                      ? "text-primary"
-                      : "text-ro-yellow"
-                    : `${baseColor} hover:text-primary`
+                className={`rounded-full px-3.5 py-2 text-sm font-semibold transition-all duration-200 ${
+                  isActive ? `${activeFill} scale-105` : `${base} ${hoverFill}`
                 }`}
               >
                 {item.label}
-                {isActive && (
-                  <span className="absolute inset-x-3.5 -bottom-0.5 h-0.5 rounded-full bg-current" />
-                )}
               </button>
             );
           })}
         </nav>
+
 
         {/* CTA + burger */}
         <div className="flex items-center gap-2">
