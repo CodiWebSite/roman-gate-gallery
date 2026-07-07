@@ -40,11 +40,32 @@ export function Spin360({ frames, videoUrl, title }: Props) {
   const pinchStartScaleRef = useRef(1);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [hintVisible, setHintVisible] = useState(true);
+
+  useEffect(() => {
+    const onChange = () => {
+      const active = document.fullscreenElement === wrapRef.current;
+      setIsFullscreen(active);
+      requestAnimationFrame(() => applyTransformRef.current());
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.();
+    } else {
+      el.requestFullscreen?.();
+    }
+  }, []);
 
   const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
