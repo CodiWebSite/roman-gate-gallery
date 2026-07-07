@@ -53,6 +53,38 @@ async function uploadFile(file: File, kind: "image" | "video") {
   return data.signedUrl;
 }
 
+async function uploadBlob(blob: Blob, ext: string, contentType: string) {
+  const path = `spins/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("media").upload(path, blob, {
+    contentType,
+    upsert: false,
+  });
+  if (error) throw error;
+  const { data, error: signErr } = await supabase.storage
+    .from("media")
+    .createSignedUrl(path, SIGNED_EXPIRY);
+  if (signErr) throw signErr;
+  return data.signedUrl;
+}
+
+async function uploadBlobsInBatches(blobs: Blob[], onProgress?: (done: number, total: number) => void) {
+  const urls: string[] = new Array(blobs.length);
+  const BATCH = 5;
+  let done = 0;
+  for (let i = 0; i < blobs.length; i += BATCH) {
+    const slice = blobs.slice(i, i + BATCH);
+    const results = await Promise.all(
+      slice.map((b) => uploadBlob(b, "jpg", "image/jpeg")),
+    );
+    results.forEach((u, j) => {
+      urls[i + j] = u;
+    });
+    done += slice.length;
+    onProgress?.(done, blobs.length);
+  }
+  return urls;
+}
+
 function AdminPage() {
   const navigate = useNavigate();
   const claim = useServerFn(claimAdmin);
