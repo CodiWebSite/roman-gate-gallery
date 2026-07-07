@@ -224,16 +224,60 @@ export function Spin360({ frames, videoUrl, title }: Props) {
     };
   }, [frames, videoUrl, draw]);
 
+  const dist = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+    Math.hypot(a.x - b.x, a.y - b.y);
+
   const onPointerDown = (e: React.PointerEvent) => {
     if (!ready) return;
     (e.target as Element).setPointerCapture?.(e.pointerId);
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointersRef.current.size === 2) {
+      const [p1, p2] = [...pointersRef.current.values()];
+      pinchStartDistRef.current = dist(p1, p2);
+      pinchStartScaleRef.current = scaleRef.current;
+      draggingRef.current = false;
+      return;
+    }
     draggingRef.current = true;
     movedRef.current = false;
     lastXRef.current = e.clientX;
+    lastYRef.current = e.clientY;
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!draggingRef.current || !ready) return;
+    if (!ready) return;
+    if (pointersRef.current.has(e.pointerId)) {
+      pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+
+    // pinch-to-zoom (2 degete)
+    if (pointersRef.current.size === 2) {
+      const [p1, p2] = [...pointersRef.current.values()];
+      const d = dist(p1, p2);
+      if (pinchStartDistRef.current > 0) {
+        setZoom((pinchStartScaleRef.current * d) / pinchStartDistRef.current);
+      }
+      return;
+    }
+
+    if (!draggingRef.current) return;
+
+    // panoramare când e mărit
+    if (scaleRef.current > 1) {
+      const dx = e.clientX - lastXRef.current;
+      const dy = e.clientY - lastYRef.current;
+      lastXRef.current = e.clientX;
+      lastYRef.current = e.clientY;
+      offsetRef.current = {
+        x: offsetRef.current.x + dx,
+        y: offsetRef.current.y + dy,
+      };
+      applyTransform();
+      return;
+    }
+
+    // rotire 360°
     const dx = e.clientX - lastXRef.current;
     if (Math.abs(dx) < 3) return;
     lastXRef.current = e.clientX;
@@ -248,8 +292,20 @@ export function Spin360({ frames, videoUrl, title }: Props) {
     draw(Math.round(indexRef.current));
   };
 
-  const onPointerUp = () => {
-    draggingRef.current = false;
+  const onPointerUp = (e: React.PointerEvent) => {
+    pointersRef.current.delete(e.pointerId);
+    if (pointersRef.current.size < 2) pinchStartDistRef.current = 0;
+    if (pointersRef.current.size === 0) draggingRef.current = false;
+  };
+
+  const onWheel = (e: React.WheelEvent) => {
+    if (!ready) return;
+    setZoom(scaleRef.current - Math.sign(e.deltaY) * 0.3);
+  };
+
+  const onDoubleClick = () => {
+    if (!ready) return;
+    setZoom(scaleRef.current > 1 ? 1 : 2);
   };
 
   if (failed) {
