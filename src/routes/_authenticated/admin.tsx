@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { claimAdmin } from "@/lib/admin.functions";
 import { CATEGORIES, type Project, type VideoItem, type Testimonial, type ProjectSketch, type ProjectPhoto } from "@/lib/site";
 import {
-  LogOut, Plus, Trash2, ArrowUp, ArrowDown, Loader2, ImageIcon, Video, Star, Settings as SettingsIcon, ExternalLink, Ruler, Hammer, Check, X as XIcon,
+  LogOut, Plus, Trash2, ArrowUp, ArrowDown, Loader2, ImageIcon, Video, Star, Settings as SettingsIcon, ExternalLink, Ruler, Hammer, Check, X as XIcon, RotateCw,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -261,6 +261,11 @@ function ProjectsManager({ kind }: { kind: "schema" | "real" }) {
                 <div className="sm:col-span-2">
                   <SketchesManager projectId={p.id} />
                 </div>
+                {kind === "schema" && (
+                  <div className="sm:col-span-2">
+                    <SpinManager project={p} onUpdate={update} />
+                  </div>
+                )}
               </div>
               <div className="flex flex-row gap-2 sm:flex-col">
                 <IconBtn onClick={() => move(idx, -1)}><ArrowUp className="h-4 w-4" /></IconBtn>
@@ -274,6 +279,80 @@ function ProjectsManager({ kind }: { kind: "schema" | "real" }) {
     </div>
   );
 }
+
+/* ---------- Spin 360 video (per model) ---------- */
+function SpinManager({
+  project,
+  onUpdate,
+}: {
+  project: Project;
+  onUpdate: (id: string, patch: Partial<Project>) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const upload = async (file: File) => {
+    setUploading(true);
+    try {
+      const url = await uploadFile(file, "video");
+      onUpdate(project.id, { spin_video_url: url });
+      toast.success("Video 360° adăugat. Clienții pot roti poarta pe site.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Eroare la încărcare.");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const clear = () => {
+    if (!confirm("Elimini videoul 360°?")) return;
+    onUpdate(project.id, { spin_video_url: null });
+  };
+
+  return (
+    <div className="rounded-xl border border-dashed border-border bg-secondary/30 p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <Lbl>
+          <span className="inline-flex items-center gap-1">
+            <RotateCw className="h-3.5 w-3.5" /> Video 360° (rotire interactivă)
+          </span>
+        </Lbl>
+        <div className="flex items-center gap-2">
+          {project.spin_video_url && (
+            <button
+              onClick={clear}
+              className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-muted"
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Elimină
+            </button>
+          )}
+          <button
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold hover:bg-muted disabled:opacity-60"
+          >
+            {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+            {project.spin_video_url ? "Înlocuiește" : "Adaugă video 360°"}
+          </button>
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="video/mp4,video/webm,video/quicktime"
+          className="hidden"
+          onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
+        />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {project.spin_video_url
+          ? "Video 360° încărcat. Pe site apare butonul „Rotește 360°”."
+          : "Încarcă clipul în care poarta se rotește complet (mp4). Clienții o vor roti singuri cu mouse-ul/degetul."}
+      </p>
+    </div>
+  );
+}
+
 
 /* ---------- Sketches (per project) ---------- */
 function SketchesManager({ projectId }: { projectId: string }) {

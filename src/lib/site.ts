@@ -26,6 +26,7 @@ export interface Project {
   published: boolean;
   sort_order: number;
   kind: string;
+  spin_video_url: string | null;
 }
 
 export interface ProjectSketch {
