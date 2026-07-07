@@ -84,6 +84,8 @@ export function Spin360({ frames, videoUrl, title }: Props) {
     offsetRef.current = { x, y };
     canvas.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
   }, []);
+  const applyTransformRef = useRef(applyTransform);
+  applyTransformRef.current = applyTransform;
 
   const setZoom = useCallback(
     (next: number) => {
