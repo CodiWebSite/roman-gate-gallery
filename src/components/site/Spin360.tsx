@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { RotateCw, Loader2, MousePointer2, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
+import { RotateCw, Loader2, MousePointer2, ZoomIn, ZoomOut, Maximize2, Maximize, Minimize } from "lucide-react";
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;
@@ -40,11 +40,32 @@ export function Spin360({ frames, videoUrl, title }: Props) {
   const pinchStartScaleRef = useRef(1);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [hintVisible, setHintVisible] = useState(true);
+
+  useEffect(() => {
+    const onChange = () => {
+      const active = document.fullscreenElement === wrapRef.current;
+      setIsFullscreen(active);
+      requestAnimationFrame(() => applyTransformRef.current());
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.();
+    } else {
+      el.requestFullscreen?.();
+    }
+  }, []);
 
   const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
@@ -63,6 +84,8 @@ export function Spin360({ frames, videoUrl, title }: Props) {
     offsetRef.current = { x, y };
     canvas.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
   }, []);
+  const applyTransformRef = useRef(applyTransform);
+  applyTransformRef.current = applyTransform;
 
   const setZoom = useCallback(
     (next: number) => {
@@ -328,7 +351,14 @@ export function Spin360({ frames, videoUrl, title }: Props) {
 
   return (
     <div className="relative w-full max-w-3xl">
-      <div ref={wrapRef} className="relative overflow-hidden rounded-xl bg-black">
+      <div
+        ref={wrapRef}
+        className={
+          isFullscreen
+            ? "relative flex h-screen w-screen items-center justify-center overflow-hidden bg-black"
+            : "relative overflow-hidden rounded-xl bg-black"
+        }
+      >
         <canvas
           ref={canvasRef}
           onPointerDown={onPointerDown}
@@ -337,7 +367,11 @@ export function Spin360({ frames, videoUrl, title }: Props) {
           onPointerCancel={onPointerUp}
           onWheel={onWheel}
           onDoubleClick={onDoubleClick}
-          className="mx-auto block max-h-[70vh] w-full touch-none select-none"
+          className={
+            isFullscreen
+              ? "block max-h-screen w-auto max-w-full touch-none select-none"
+              : "mx-auto block max-h-[70vh] w-full touch-none select-none"
+          }
           style={{
             cursor: ready ? (scale > 1 ? "grab" : "ew-resize") : "default",
             aspectRatio: "16 / 9",
@@ -346,6 +380,7 @@ export function Spin360({ frames, videoUrl, title }: Props) {
           }}
           aria-label={title ? `Vizualizare 360° ${title}` : "Vizualizare 360°"}
         />
+
 
         {!ready && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white">
@@ -362,6 +397,14 @@ export function Spin360({ frames, videoUrl, title }: Props) {
 
         {ready && (
           <div className="absolute right-3 top-3 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              aria-label={isFullscreen ? "Ieși din ecran complet" : "Ecran complet"}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/70 text-white backdrop-blur-sm transition hover:bg-black/90"
+            >
+              {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+            </button>
             <button
               type="button"
               onClick={() => setZoom(scaleRef.current + 0.5)}
@@ -410,11 +453,6 @@ export function Spin360({ frames, videoUrl, title }: Props) {
         </p>
       )}
 
-      {ready && (
-        <p className="mt-3 flex items-center justify-center gap-2 text-center text-sm text-white/70">
-          <RotateCw className="h-4 w-4" /> Rotește 360° cu mouse-ul sau degetul
-        </p>
-      )}
     </div>
   );
 }
