@@ -379,7 +379,7 @@ export function Portfolio() {
             {spin.title && (
               <p className="mb-3 text-center text-base font-semibold text-white">{spin.title}</p>
             )}
-            <Spin360 videoUrl={spin.url} title={spin.title} />
+            <Spin360 frames={spin.frames} videoUrl={spin.url} title={spin.title} />
           </div>
         </div>
       )}
