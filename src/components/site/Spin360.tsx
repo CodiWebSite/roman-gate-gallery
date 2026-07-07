@@ -45,18 +45,30 @@ export function Spin360({ videoUrl, title }: Props) {
   useEffect(() => {
     let cancelled = false;
     const video = document.createElement("video");
-    video.src = videoUrl;
-    video.crossOrigin = "anonymous";
     video.muted = true;
+    (video as HTMLVideoElement).defaultMuted = true;
     video.playsInline = true;
+    video.setAttribute("playsinline", "");
     video.preload = "auto";
+    // atașăm ascuns în DOM — unele browsere (iOS Safari) nu redau/seek corect
+    // un element video detașat.
+    video.style.cssText =
+      "position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0;pointer-events:none;";
+    document.body.appendChild(video);
+    video.src = videoUrl;
+    video.load();
 
     const capture = document.createElement("canvas");
     const cctx = capture.getContext("2d");
 
     const seek = (t: number) =>
-      new Promise<void>((resolve) => {
+      new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => {
+          video.removeEventListener("seeked", onSeeked);
+          reject(new Error("seek timeout"));
+        }, 8000);
         const onSeeked = () => {
+          clearTimeout(timer);
           video.removeEventListener("seeked", onSeeked);
           resolve();
         };
@@ -67,8 +79,24 @@ export function Spin360({ videoUrl, title }: Props) {
     const run = async () => {
       try {
         await new Promise<void>((resolve, reject) => {
-          video.addEventListener("loadedmetadata", () => resolve(), { once: true });
-          video.addEventListener("error", () => reject(new Error("video error")), { once: true });
+          if (video.readyState >= 1) return resolve();
+          const to = setTimeout(() => reject(new Error("metadata timeout")), 15000);
+          video.addEventListener(
+            "loadedmetadata",
+            () => {
+              clearTimeout(to);
+              resolve();
+            },
+            { once: true },
+          );
+          video.addEventListener(
+            "error",
+            () => {
+              clearTimeout(to);
+              reject(new Error("video error"));
+            },
+            { once: true },
+          );
         });
         const duration = video.duration;
         if (!isFinite(duration) || duration <= 0) throw new Error("durată invalidă");
@@ -109,6 +137,7 @@ export function Spin360({ videoUrl, title }: Props) {
       framesRef.current = [];
       video.removeAttribute("src");
       video.load();
+      video.remove();
     };
   }, [videoUrl, draw]);
 
