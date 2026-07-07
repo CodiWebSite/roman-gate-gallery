@@ -148,15 +148,22 @@ let ffmpegPromise: Promise<import("@ffmpeg/ffmpeg").FFmpeg> | null = null;
 async function getFfmpeg() {
   if (!ffmpegPromise) {
     ffmpegPromise = (async () => {
-      const { FFmpeg } = await import("@ffmpeg/ffmpeg");
-      const { toBlobURL } = await import("@ffmpeg/util");
-      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
-      const ffmpeg = new FFmpeg();
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-      });
-      return ffmpeg;
+      try {
+        const { FFmpeg } = await import("@ffmpeg/ffmpeg");
+        const { toBlobURL } = await import("@ffmpeg/util");
+        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.9/dist/umd";
+        const ffmpeg = new FFmpeg();
+        ffmpeg.on("log", ({ message }) => console.debug("[ffmpeg]", message));
+        await ffmpeg.load({
+          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+        });
+        return ffmpeg;
+      } catch (e) {
+        ffmpegPromise = null; // permite reîncercarea
+        console.error("[ffmpeg] load failed", e);
+        throw new Error("Nu s-a putut încărca convertorul video (ffmpeg). Verifică conexiunea și reîncearcă.");
+      }
     })();
   }
   return ffmpegPromise;
