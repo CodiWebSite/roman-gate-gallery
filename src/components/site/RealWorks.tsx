@@ -49,11 +49,11 @@ export function RealWorks() {
   };
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (scale === 1) return;
     (e.target as Element).setPointerCapture?.(e.pointerId);
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    if (scale === 1) return;
     setDragging(true);
     lastPos.current = { x: e.clientX, y: e.clientY };
-    dragStart.current = { x: e.clientX, y: e.clientY };
   }, [scale]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
@@ -65,13 +65,24 @@ export function RealWorks() {
   }, [dragging, scale]);
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
-    if (!dragging) return;
-    const moved =
-      Math.abs(e.clientX - dragStart.current.x) > 4 ||
-      Math.abs(e.clientY - dragStart.current.y) > 4;
-    setDragging(false);
-    if (!moved) toggleZoom();
-  }, [dragging]);
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    // Zoomed: finish panning (or toggle zoom if it was a tap)
+    if (scale > 1) {
+      if (!dragging) return;
+      setDragging(false);
+      if (Math.abs(dx) <= 4 && Math.abs(dy) <= 4) toggleZoom();
+      return;
+    }
+    // Not zoomed: swipe left/right to change image, tap to zoom
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) next();
+      else prev();
+    } else if (Math.abs(dx) <= 4 && Math.abs(dy) <= 4) {
+      toggleZoom();
+    }
+  }, [dragging, scale]);
+
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
@@ -257,6 +268,34 @@ export function RealWorks() {
                 </button>
               )}
             </div>
+
+            {images.length > 1 && (
+              <div className="mt-4 flex max-w-full justify-start gap-2 overflow-x-auto pb-1 sm:justify-center">
+                {images.map((img, i) => (
+                  <button
+                    key={img.id}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIndex(i);
+                      setScale(1);
+                      setPan({ x: 0, y: 0 });
+                    }}
+                    aria-label={`Vezi imaginea ${i + 1}`}
+                    className={`h-14 w-16 flex-shrink-0 overflow-hidden rounded-md bg-black transition-all ${
+                      i === index ? "ring-2 ring-white" : "opacity-50 hover:opacity-100"
+                    }`}
+                  >
+                    <img
+                      src={img.image_url}
+                      alt={img.alt_text || ""}
+                      className="h-full w-full object-cover"
+                      draggable={false}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
