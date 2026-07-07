@@ -27,6 +27,7 @@ export interface Project {
   sort_order: number;
   kind: string;
   spin_video_url: string | null;
+  spin_frames: string[] | null;
 }
 
 export interface ProjectSketch {
