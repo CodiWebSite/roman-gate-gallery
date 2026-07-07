@@ -50,7 +50,7 @@ export async function extractSpinFrames(
         "error",
         () => {
           clearTimeout(to);
-          reject(new Error("Format video neacceptat de browser."));
+          reject(new Error("UNSUPPORTED_CODEC"));
         },
         { once: true },
       );
@@ -58,6 +58,7 @@ export async function extractSpinFrames(
 
     const duration = video.duration;
     if (!isFinite(duration) || duration <= 0) throw new Error("Durată video invalidă.");
+
 
     const ratio = (video.videoHeight || 1080) / (video.videoWidth || 1920);
     const canvas = document.createElement("canvas");
