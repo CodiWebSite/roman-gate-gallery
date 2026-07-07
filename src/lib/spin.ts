@@ -151,12 +151,13 @@ async function getFfmpeg() {
       try {
         const { FFmpeg } = await import("@ffmpeg/ffmpeg");
         const { toBlobURL } = await import("@ffmpeg/util");
-        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.9/dist/umd";
+        const coreURL = await toBlobURL(new URL("/ffmpeg/ffmpeg-core.js", window.location.origin).toString(), "text/javascript");
+        const wasmURL = "/__l5e/assets-v1/6b0f392e-64d3-4072-b7b1-20b91c4a5079/ffmpeg-core-0.12.9.wasm";
         const ffmpeg = new FFmpeg();
         ffmpeg.on("log", ({ message }) => console.debug("[ffmpeg]", message));
         await ffmpeg.load({
-          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+          coreURL,
+          wasmURL,
         });
         return ffmpeg;
       } catch (e) {
