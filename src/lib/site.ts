@@ -63,6 +63,8 @@ export interface Testimonial {
   rating: number;
   published: boolean;
   sort_order: number;
+  status: string;
+  created_at: string;
 }
 
 export const DEFAULT_WHATSAPP_MESSAGE =

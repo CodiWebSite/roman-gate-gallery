@@ -163,6 +163,7 @@ export type Database = {
           published: boolean
           rating: number
           sort_order: number
+          status: string
           updated_at: string
         }
         Insert: {
@@ -174,6 +175,7 @@ export type Database = {
           published?: boolean
           rating?: number
           sort_order?: number
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -185,6 +187,7 @@ export type Database = {
           published?: boolean
           rating?: number
           sort_order?: number
+          status?: string
           updated_at?: string
         }
         Relationships: []
