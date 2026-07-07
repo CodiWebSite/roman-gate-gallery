@@ -12,4 +12,12 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // @ffmpeg/ffmpeg loads its web worker via `new URL("./worker.js", import.meta.url)`.
+    // If Vite pre-bundles it into .vite/deps, that worker path 404s. Excluding it keeps
+    // the ESM structure intact so the worker resolves correctly.
+    optimizeDeps: {
+      exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],
+    },
+  },
 });
