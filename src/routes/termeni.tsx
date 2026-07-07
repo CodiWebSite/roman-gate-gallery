@@ -2,7 +2,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/site/LegalPage";
 
 export const Route = createFileRoute("/termeni")({
-  head: () => ({ meta: [{ title: "Termeni și condiții · Porți Din Lemn" }] }),
+  head: () => ({
+    meta: [
+      { title: "Termeni și condiții · Porți Din Lemn" },
+      { name: "description", content: "Termenii și condițiile de utilizare a site-ului Porți Din Lemn: servicii de execuție și montaj, comenzi, plăți și garanție pentru porți din lemn." },
+      { property: "og:title", content: "Termeni și condiții · Porți Din Lemn" },
+      { property: "og:description", content: "Termenii și condițiile de utilizare a site-ului și serviciilor Porți Din Lemn." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://portidinlemn.ro/termeni" },
+    ],
+    links: [{ rel: "canonical", href: "https://portidinlemn.ro/termeni" }],
+  }),
   component: () => (
     <LegalPage title="Termeni și condiții">
       <p>
