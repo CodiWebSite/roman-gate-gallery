@@ -3,3 +3,5 @@ Allow: /
 
 Disallow: /admin
 Disallow: /auth
+
+Sitemap: https://portidinlemn.ro/sitemap.xml

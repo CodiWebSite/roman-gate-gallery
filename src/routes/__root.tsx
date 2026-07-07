@@ -78,11 +78,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Porți Din Lemn" },
-      { name: "description", content: "Porți mândre românești din lemn masiv și stejar. Portofoliu premium cu servicii de execuție, montaj și recondiționare porți din lemn în România." },
+      { title: "Porți din lemn masiv și stejar | Modele porți tradiționale" },
+      { name: "description", content: "Porți din lemn masiv și stejar lucrate manual: porți mari, masive, tradiționale și cu acoperiș. Vezi modele de porți și cere ofertă. Execuție și montaj în România." },
+      { name: "keywords", content: "porți din lemn, porți din stejar, porți masive, porți mari, porți tradiționale, porți cu acoperiș, modele de porți, porți din lemn masiv, poartă din lemn rustic" },
       { name: "author", content: "Porți Din Lemn" },
       { name: "google-site-verification", content: "F9Z8zZh1ZtQBZ6xFp59yskAoSw7uEH7J0Y5xkxy0kBw" },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Porți Din Lemn" },
+      { property: "og:locale", content: "ro_RO" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
