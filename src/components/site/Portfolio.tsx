@@ -175,7 +175,7 @@ export function Portfolio() {
                           <Images className="h-3.5 w-3.5" /> {allPhotos.length}
                         </span>
                       )}
-                      {p.spin_video_url && (
+                      {(p.spin_video_url || (p.spin_frames && p.spin_frames.length > 0)) && (
                         <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground shadow-soft">
                           <RotateCw className="h-3.5 w-3.5" /> 360°
                         </span>
