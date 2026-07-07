@@ -49,11 +49,11 @@ export function RealWorks() {
   };
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (scale === 1) return;
     (e.target as Element).setPointerCapture?.(e.pointerId);
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    if (scale === 1) return;
     setDragging(true);
     lastPos.current = { x: e.clientX, y: e.clientY };
-    dragStart.current = { x: e.clientX, y: e.clientY };
   }, [scale]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
@@ -65,13 +65,24 @@ export function RealWorks() {
   }, [dragging, scale]);
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
-    if (!dragging) return;
-    const moved =
-      Math.abs(e.clientX - dragStart.current.x) > 4 ||
-      Math.abs(e.clientY - dragStart.current.y) > 4;
-    setDragging(false);
-    if (!moved) toggleZoom();
-  }, [dragging]);
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    // Zoomed: finish panning (or toggle zoom if it was a tap)
+    if (scale > 1) {
+      if (!dragging) return;
+      setDragging(false);
+      if (Math.abs(dx) <= 4 && Math.abs(dy) <= 4) toggleZoom();
+      return;
+    }
+    // Not zoomed: swipe left/right to change image, tap to zoom
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) next();
+      else prev();
+    } else if (Math.abs(dx) <= 4 && Math.abs(dy) <= 4) {
+      toggleZoom();
+    }
+  }, [dragging, scale]);
+
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
