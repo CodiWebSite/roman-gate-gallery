@@ -22,6 +22,7 @@ const TABS = [
   { id: "videos", label: "Video", icon: Video },
   { id: "testimonials", label: "Testimoniale", icon: Star },
   { id: "settings", label: "Setări", icon: SettingsIcon },
+  { id: "admins", label: "Admini", icon: Users },
 ] as const;
 
 
