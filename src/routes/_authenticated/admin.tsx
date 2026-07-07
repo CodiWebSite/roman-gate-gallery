@@ -167,6 +167,7 @@ function AdminPage() {
         {tab === "videos" && <VideosManager />}
         {tab === "testimonials" && <TestimonialsManager />}
         {tab === "settings" && <SettingsManager />}
+        {tab === "admins" && <AdminsManager />}
       </div>
     </div>
   );
