@@ -34,6 +34,7 @@ export function Hero() {
         aria-label="Poartă din lemn de stejar într-o curte tradițională românească"
         className="absolute inset-0 h-full w-full object-cover"
       >
+        <source src="/videos/hero.webm" type="video/webm" />
         <source src="/videos/hero-h264.mp4" type="video/mp4" />
       </video>
       <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
