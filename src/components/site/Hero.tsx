@@ -16,6 +16,7 @@ export function Hero() {
         muted
         loop
         playsInline
+        preload="auto"
         poster="/images/hero.jpg"
         aria-label="Poartă din lemn de stejar într-o curte tradițională românească"
         className="absolute inset-0 h-full w-full object-cover"
