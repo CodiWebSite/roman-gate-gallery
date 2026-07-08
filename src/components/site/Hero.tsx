@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useSettings, whatsappLink } from "@/lib/site";
 import { smoothScrollToElement } from "@/lib/smooth-scroll";
 import { RomanianFlag } from "@/components/RomanianFlag";
@@ -8,14 +9,28 @@ import heroVideo from "@/assets/hero.mp4.asset.json";
 export function Hero() {
   const { data: settings } = useSettings();
   const href = whatsappLink(settings?.whatsapp_number);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    // React doesn't reliably apply the `muted` attribute to the DOM,
+    // which blocks autoplay. Force it, then start playback.
+    el.muted = true;
+    el.defaultMuted = true;
+    const tryPlay = () => el.play().catch(() => {});
+    tryPlay();
+  }, []);
 
   return (
     <section id="acasa" className="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
       <video
+        ref={videoRef}
         autoPlay
         muted
         loop
         playsInline
+        preload="auto"
         poster="/images/hero.jpg"
         aria-label="Poartă din lemn de stejar într-o curte tradițională românească"
         className="absolute inset-0 h-full w-full object-cover"
