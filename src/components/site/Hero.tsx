@@ -44,14 +44,14 @@ export function Hero() {
           Meșteșug românesc autentic
         </p>
         <h1 className="text-balance font-display text-5xl font-bold text-primary-foreground sm:text-7xl">
-          Porți din lemn masiv și stejar
+          Porți din lemn masiv/ stejar&nbsp;
         </h1>
         <p className="mt-4 flex items-center justify-center gap-2.5 text-balance text-xl font-medium text-primary-foreground/95 sm:text-2xl">
           Porți mândre românești <RomanianFlag />
         </p>
         <p className="mx-auto mt-5 max-w-xl text-balance text-base text-primary-foreground/85 sm:text-lg">
-          Porți din lemn masiv și stejar, lucrate manual, cu durabilitate și
-          eleganță pentru curți tradiționale și moderne.
+          Porți din lemn masiv, lucrate manual, cu durabilitate și eleganță
+          pentru curți tradiționale și moderne.
         </p>
 
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
