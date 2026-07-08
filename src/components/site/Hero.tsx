@@ -3,6 +3,7 @@ import { smoothScrollToElement } from "@/lib/smooth-scroll";
 import { RomanianFlag } from "@/components/RomanianFlag";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { ArrowRight } from "lucide-react";
+import heroVideo from "@/assets/hero.mp4.asset.json";
 
 export function Hero() {
   const { data: settings } = useSettings();
@@ -10,14 +11,17 @@ export function Hero() {
 
   return (
     <section id="acasa" className="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
-      <img
-        src="/images/hero.jpg"
-        alt="Poartă din lemn de stejar într-o curte tradițională românească"
-        width={1920}
-        height={1280}
-        fetchPriority="high"
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster="/images/hero.jpg"
+        aria-label="Poartă din lemn de stejar într-o curte tradițională românească"
         className="absolute inset-0 h-full w-full object-cover"
-      />
+      >
+        <source src={heroVideo.url} type="video/mp4" />
+      </video>
       <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
 
       <div className="relative z-10 mx-auto max-w-3xl px-6 py-28 text-center">
