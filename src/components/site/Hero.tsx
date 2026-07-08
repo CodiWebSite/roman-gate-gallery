@@ -4,7 +4,6 @@ import { smoothScrollToElement } from "@/lib/smooth-scroll";
 import { RomanianFlag } from "@/components/RomanianFlag";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { ArrowRight } from "lucide-react";
-import heroVideo from "@/assets/hero.mp4.asset.json";
 
 export function Hero() {
   const { data: settings } = useSettings();
@@ -35,7 +34,8 @@ export function Hero() {
         aria-label="Poartă din lemn de stejar într-o curte tradițională românească"
         className="absolute inset-0 h-full w-full object-cover"
       >
-        <source src={heroVideo.url} type="video/mp4" />
+        <source src="/videos/hero.webm" type="video/webm" />
+        <source src="/videos/hero-h264.mp4" type="video/mp4" />
       </video>
       <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
 
