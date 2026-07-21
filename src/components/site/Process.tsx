@@ -1,7 +1,7 @@
 import { Reveal } from "@/components/Reveal";
 
 const STEPS = [
-  { n: "01", title: "Consultare", text: "Discutăm nevoile, stilul și bugetul tău." },
+  { n: "01", title: "Consultare", text: "Discutăm nevoile, stilul și bugetul dumneavoastră." },
   { n: "02", title: "Măsurători", text: "Venim la fața locului pentru măsurători precise." },
   { n: "03", title: "Proiectare", text: "Realizăm proiectul și alegem lemnul potrivit." },
   { n: "04", title: "Execuție", text: "Construim poarta manual, în atelierul nostru." },
