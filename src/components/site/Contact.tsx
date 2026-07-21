@@ -26,7 +26,7 @@ export function Contact() {
     }
     const msg = `Bună ziua! Numele meu este ${form.name} (${form.phone}), din ${form.city}. ${form.message}`;
     window.open(whatsappLink(settings?.whatsapp_number, msg), "_blank");
-    toast.success("Te redirecționăm către WhatsApp.");
+    toast.success("Vă redirecționăm către WhatsApp.");
   };
 
   return (
@@ -38,10 +38,10 @@ export function Contact() {
               Contact
             </p>
             <h2 className="text-balance text-3xl font-bold sm:text-4xl">
-              Cere o ofertă pentru poarta ta
+              Cereți o ofertă pentru poarta dumneavoastră
             </h2>
             <p className="mt-4 text-muted-foreground">
-              Completează formularul sau scrie-ne direct pe WhatsApp. Revenim cu
+              Completați formularul sau scrieți-ne direct pe WhatsApp. Revenim cu
               o ofertă personalizată cât mai curând.
             </p>
 
