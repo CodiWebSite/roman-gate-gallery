@@ -140,7 +140,7 @@ export function Testimonials() {
 
                 <div className="flex flex-col items-center">
                   <span className="mb-2 text-sm font-medium text-muted-foreground">
-                    Cât de mulțumit ești?
+                    Cât de mulțumit sunteți?
                   </span>
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((n) => (
