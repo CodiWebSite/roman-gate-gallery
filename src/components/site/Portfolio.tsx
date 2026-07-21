@@ -228,7 +228,7 @@ export function Portfolio() {
                             className="inline-flex items-center gap-2 self-start rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
                           >
                             <Ruler className="h-4 w-4" />
-                            Vezi schița{sketches.length > 1 ? `ele (${sketches.length})` : ""}
+                            {sketches.length > 1 ? `Vezi schițele (${sketches.length})` : "Vezi schița"}
                           </button>
                         )}
                       </div>
