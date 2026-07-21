@@ -83,7 +83,7 @@ export function Testimonials() {
             Ce spun clienții noștri
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Ai lucrat cu noi? Lasă-ne o recenzie mai jos — o publicăm pe site după
+            Ați lucrat cu noi? Lăsați-ne o recenzie mai jos — o publicăm pe site după
             o scurtă verificare.
           </p>
         </Reveal>
