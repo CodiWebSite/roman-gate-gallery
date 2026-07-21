@@ -136,7 +136,7 @@ export function Header() {
             style={{ backgroundColor: "oklch(0.6 0.16 150)" }}
           >
             <WhatsAppIcon className="h-4 w-4" />
-            Cere ofertă
+            Cereți ofertă
           </a>
 
           <button
