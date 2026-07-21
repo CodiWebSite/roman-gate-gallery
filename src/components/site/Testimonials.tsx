@@ -182,7 +182,7 @@ export function Testimonials() {
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       maxLength={80}
-                      placeholder="Orașul tău"
+                      placeholder="Orașul dumneavoastră"
                       className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
