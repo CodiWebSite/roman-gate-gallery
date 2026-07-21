@@ -83,7 +83,7 @@ export function Testimonials() {
             Ce spun clienții noștri
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Ai lucrat cu noi? Lasă-ne o recenzie mai jos — o publicăm pe site după
+            Ați lucrat cu noi? Lăsați-ne o recenzie mai jos — o publicăm pe site după
             o scurtă verificare.
           </p>
         </Reveal>
@@ -122,25 +122,25 @@ export function Testimonials() {
                 <CheckCircle2 className="h-12 w-12 text-forest" />
                 <h3 className="mt-4 text-xl font-semibold">Mulțumim pentru recenzie!</h3>
                 <p className="mt-2 max-w-md text-muted-foreground">
-                  Recenzia ta a fost trimisă și va apărea pe site imediat ce este
+                  Recenzia dumneavoastră a fost trimisă și va apărea pe site imediat ce este
                   aprobată de echipa noastră.
                 </p>
                 <button
                   onClick={() => setDone(false)}
                   className="mt-6 rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-secondary"
                 >
-                  Lasă altă recenzie
+                  Lăsați altă recenzie
                 </button>
               </div>
             ) : (
               <form onSubmit={submit} className="space-y-5">
                 <h3 className="text-center font-display text-2xl font-bold">
-                  Lasă-ne o recenzie
+                  Lăsați-ne o recenzie
                 </h3>
 
                 <div className="flex flex-col items-center">
                   <span className="mb-2 text-sm font-medium text-muted-foreground">
-                    Cât de mulțumit ești?
+                    Cât de mulțumit sunteți?
                   </span>
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((n) => (
@@ -172,7 +172,7 @@ export function Testimonials() {
                       value={author}
                       onChange={(e) => setAuthor(e.target.value)}
                       maxLength={80}
-                      placeholder="Numele tău"
+                      placeholder="Numele dumneavoastră"
                       className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
@@ -182,20 +182,20 @@ export function Testimonials() {
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       maxLength={80}
-                      placeholder="Orașul tău"
+                      placeholder="Orașul dumneavoastră"
                       className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium">Recenzia ta *</label>
+                  <label className="mb-1 block text-sm font-medium">Recenzia dumneavoastră *</label>
                   <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     maxLength={600}
                     rows={4}
-                    placeholder="Spune-ne cum a fost experiența ta..."
+                    placeholder="Spuneți-ne cum a fost experiența dumneavoastră..."
                     className="w-full resize-none rounded-xl border border-input bg-background px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
                   />
                   <p className="mt-1 text-right text-xs text-muted-foreground">

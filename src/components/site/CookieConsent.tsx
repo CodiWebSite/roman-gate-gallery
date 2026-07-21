@@ -49,8 +49,8 @@ export function CookieConsent() {
             <p className="font-semibold text-foreground">Acest site folosește cookie-uri</p>
             <p className="mt-1">
               Folosim cookie-uri strict necesare pentru funcționarea site-ului și,
-              cu acordul tău, cookie-uri de analiză pentru a înțelege cum este
-              folosit site-ul. Poți accepta sau respinge cookie-urile opționale.
+              cu acordul dumneavoastră, cookie-uri de analiză pentru a înțelege cum este
+              folosit site-ul. Puteți accepta sau respinge cookie-urile opționale.
               Detalii în{" "}
               <Link to="/cookies" className="text-primary underline hover:no-underline">
                 Politica de cookies
@@ -75,7 +75,7 @@ export function CookieConsent() {
                   <p className="font-medium text-foreground">Cookie-uri de analiză</p>
                   <p className="mt-0.5">
                     Ne ajută să măsurăm traficul și performanța, în formă agregată.
-                    Se activează doar dacă le accepți.
+                    Se activează doar dacă le acceptați.
                   </p>
                 </div>
               </div>

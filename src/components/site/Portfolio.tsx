@@ -125,9 +125,9 @@ export function Portfolio() {
             Modele și concepte 3D
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Acestea sunt modele și schițe realizate pe calculator în 3D, pentru a-ți
-            oferi idei și a vizualiza cum ar putea arăta poarta ta înainte de execuție.
-            Fiecare model poate fi personalizat după dimensiunile și preferințele tale.
+            Acestea sunt modele și schițe realizate pe calculator în 3D, pentru a vă
+            oferi idei și a vizualiza cum ar putea arăta poarta dumneavoastră înainte de execuție.
+            Fiecare model poate fi personalizat după dimensiunile și preferințele dumneavoastră.
           </p>
         </Reveal>
 
@@ -228,7 +228,7 @@ export function Portfolio() {
                             className="inline-flex items-center gap-2 self-start rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
                           >
                             <Ruler className="h-4 w-4" />
-                            Vezi schița{sketches.length > 1 ? `e (${sketches.length})` : ""}
+                            Vezi schița{sketches.length > 1 ? `ele (${sketches.length})` : ""}
                           </button>
                         )}
                       </div>
