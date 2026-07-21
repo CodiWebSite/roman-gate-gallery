@@ -172,7 +172,7 @@ export function Testimonials() {
                       value={author}
                       onChange={(e) => setAuthor(e.target.value)}
                       maxLength={80}
-                      placeholder="Numele tău"
+                      placeholder="Numele dumneavoastră"
                       className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
