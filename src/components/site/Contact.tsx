@@ -87,7 +87,7 @@ export function Contact() {
                   rows={4}
                   maxLength={1000}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-                  placeholder="Descrie pe scurt ce poartă îți dorești..."
+                  placeholder="Descrieți pe scurt ce poartă vă doriți..."
                 />
               </div>
               <button
