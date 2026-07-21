@@ -122,7 +122,7 @@ export function Testimonials() {
                 <CheckCircle2 className="h-12 w-12 text-forest" />
                 <h3 className="mt-4 text-xl font-semibold">Mulțumim pentru recenzie!</h3>
                 <p className="mt-2 max-w-md text-muted-foreground">
-                  Recenzia ta a fost trimisă și va apărea pe site imediat ce este
+                  Recenzia dumneavoastră a fost trimisă și va apărea pe site imediat ce este
                   aprobată de echipa noastră.
                 </p>
                 <button
