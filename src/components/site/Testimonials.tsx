@@ -129,7 +129,7 @@ export function Testimonials() {
                   onClick={() => setDone(false)}
                   className="mt-6 rounded-full border border-border px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-secondary"
                 >
-                  Lasă altă recenzie
+                  Lăsați altă recenzie
                 </button>
               </div>
             ) : (
