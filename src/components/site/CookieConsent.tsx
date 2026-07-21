@@ -75,7 +75,7 @@ export function CookieConsent() {
                   <p className="font-medium text-foreground">Cookie-uri de analiză</p>
                   <p className="mt-0.5">
                     Ne ajută să măsurăm traficul și performanța, în formă agregată.
-                    Se activează doar dacă le accepți.
+                    Se activează doar dacă le acceptați.
                   </p>
                 </div>
               </div>
