@@ -189,13 +189,13 @@ export function Testimonials() {
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium">Recenzia ta *</label>
+                  <label className="mb-1 block text-sm font-medium">Recenzia dumneavoastră *</label>
                   <textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     maxLength={600}
                     rows={4}
-                    placeholder="Spune-ne cum a fost experiența ta..."
+                    placeholder="Spuneți-ne cum a fost experiența dumneavoastră..."
                     className="w-full resize-none rounded-xl border border-input bg-background px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
                   />
                   <p className="mt-1 text-right text-xs text-muted-foreground">
