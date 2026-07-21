@@ -63,7 +63,7 @@ export function Hero() {
             style={{ backgroundColor: "oklch(0.6 0.16 150)" }}
           >
             <WhatsAppIcon className="h-5 w-5" />
-            Cere ofertă pe WhatsApp
+            Cereți ofertă pe WhatsApp
           </a>
           <button
             onClick={() => smoothScrollToElement(document.getElementById("portofoliu"))}
