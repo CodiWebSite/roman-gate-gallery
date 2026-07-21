@@ -135,7 +135,7 @@ export function Testimonials() {
             ) : (
               <form onSubmit={submit} className="space-y-5">
                 <h3 className="text-center font-display text-2xl font-bold">
-                  Lasă-ne o recenzie
+                  Lăsați-ne o recenzie
                 </h3>
 
                 <div className="flex flex-col items-center">
